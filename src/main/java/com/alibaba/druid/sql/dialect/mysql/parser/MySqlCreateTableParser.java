@@ -228,7 +228,7 @@ public class MySqlCreateTableParser extends SQLCreateTableParser {
 
                     SQLColumnDefinition column = null;
                     if (lexer.token() == Token.IDENTIFIER //
-                        || lexer.token() == Token.LITERAL_CHARS) {
+                            || lexer.token() == Token.LITERAL_CHARS) {
                         column = this.exprParser.parseColumn();
                         stmt.getTableElementList().add(column);
 
@@ -236,8 +236,8 @@ public class MySqlCreateTableParser extends SQLCreateTableParser {
                             column.addAfterComment(lexer.readAndResetComments());
                         }
                     } else if (lexer.token() == Token.CONSTRAINT //
-                               || lexer.token() == Token.PRIMARY //
-                               || lexer.token() == Token.UNIQUE) {
+                            || lexer.token() == Token.PRIMARY //
+                            || lexer.token() == Token.UNIQUE) {
                         SQLTableConstraint constraint = this.parseConstraint();
                         constraint.setParent(stmt);
                         stmt.getTableElementList().add(constraint);
@@ -268,7 +268,7 @@ public class MySqlCreateTableParser extends SQLCreateTableParser {
                             }
                         }
                         accept(Token.RPAREN);
-                        
+
                         if (lexer.identifierEquals("USING")) {
                             lexer.nextToken();
                             idx.setIndexType(lexer.stringVal());
@@ -905,7 +905,7 @@ public class MySqlCreateTableParser extends SQLCreateTableParser {
 
                 subPartitionByClause.getOptions().add(option);
             }
-            
+
             if (lexer.identifierEquals("SUBPARTITIONS")) {
                 lexer.nextToken();
                 Number intValue = lexer.integerValue();

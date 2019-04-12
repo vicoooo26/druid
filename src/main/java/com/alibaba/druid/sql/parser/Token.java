@@ -287,8 +287,10 @@ public enum Token {
     FORMAT("FORMAT"),
     QUALIFY("QUALIFY"),
     MOD("MOD"),
-    
-    CONCAT("CONCAT"), // DB2
+
+    // DB2
+    CONCAT("CONCAT"),
+    DEFINITION("DEFINITION"),
 
     UPSERT("UPSERT"), // Phoenix
 

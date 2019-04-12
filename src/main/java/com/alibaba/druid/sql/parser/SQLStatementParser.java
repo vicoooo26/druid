@@ -488,7 +488,6 @@ public class SQLStatementParser extends SQLParser {
 
                 continue;
             }
-
             if (lexer.identifierEquals("RETURN")) {
                 SQLStatement stmt = parseReturn();
                 statementList.add(stmt);
@@ -2145,12 +2144,13 @@ public class SQLStatementParser extends SQLParser {
             comments = lexer.readAndResetComments();
         }
 
+        //分词序列
         accept(Token.CREATE);
 
         Token token = lexer.token;
-
         if (token == Token.TABLE || lexer.identifierEquals("GLOBAL")) {
             SQLCreateTableParser createTableParser = getSQLCreateTableParser();
+            //CREATE后为TABLE即可视为建表语句 -- 在特定的数据库实现中还可以对具体如LIKE来限制
             SQLCreateTableStatement stmt = createTableParser.parseCreateTable(false);
             
             if (comments != null) {

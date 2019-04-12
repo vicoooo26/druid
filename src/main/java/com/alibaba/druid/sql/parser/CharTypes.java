@@ -18,7 +18,7 @@ package com.alibaba.druid.sql.parser;
 import static com.alibaba.druid.sql.parser.LayoutCharacters.EOI;
 
 public class CharTypes {
-
+    //字符是否是0-9 a-f A-F的16进制单位
     private final static boolean[] hexFlags = new boolean[256];
     static {
         for (char c = 0; c < hexFlags.length; ++c) {
@@ -40,6 +40,7 @@ public class CharTypes {
         return c >= '0' && c <= '9';
     }
 
+    //字符是否是在sql语句中会出现的字符且位于开头
     private final static boolean[] firstIdentifierFlags = new boolean[256];
     static {
         for (char c = 0; c < firstIdentifierFlags.length; ++c) {
@@ -99,7 +100,7 @@ public class CharTypes {
         }
         return null;
     }
-
+    //ASCII 0-32为空格，字符是否是空格
     private final static boolean[] whitespaceFlags = new boolean[256];
     static {
         for (int i = 0; i <= 32; ++i) {

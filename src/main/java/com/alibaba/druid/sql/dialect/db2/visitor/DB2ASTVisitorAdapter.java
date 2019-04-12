@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.sql.dialect.db2.visitor;
 
+import com.alibaba.druid.sql.dialect.db2.ast.DB2CreateRestriction;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2CreateTableStatement;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2SelectQueryBlock;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2ValuesStatement;
@@ -40,6 +41,16 @@ public class DB2ASTVisitorAdapter extends SQLASTVisitorAdapter implements DB2AST
     @Override
     public void endVisit(DB2ValuesStatement x) {
         
+    }
+
+    @Override
+    public boolean visit(DB2CreateRestriction.DefinitionOnly x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(DB2CreateRestriction.DefinitionOnly x) {
+
     }
 
     @Override

@@ -242,14 +242,16 @@ public class Lexer {
         this(new String(input, 0, inputLength), skipComment);
     }
 
+    //获取下一个字符
     protected final void scanChar() {
         ch = charAt(++pos);
     }
-    
+    //回滚到之前的字符
     protected void unscan() {
         ch = charAt(--pos);
     }
 
+    //语句是否结束
     public boolean isEOF() {
         return pos >= text.length();
     }
@@ -589,7 +591,7 @@ public class Lexer {
 
         nextToken();
     }
-
+    //确定分词的位置
     public final void nextToken() {
         startPos = pos;
         bufPos = 0;
@@ -637,7 +639,7 @@ public class Lexer {
                         return;
                     }
                 }
-
+                //分词
                 scanIdentifier();
                 return;
             }
@@ -1704,7 +1706,7 @@ public class Lexer {
             throw new NotAllowCommentException();
         }
     }
-
+    //分词逻辑 - 获取Token
     public void scanIdentifier() {
         this.hash_lower = 0;
         this.hash = 0;
@@ -1727,7 +1729,7 @@ public class Lexer {
 
             for (int i = startPos; i < quoteIndex; ++i) {
                 ch = text.charAt(i);
-
+                //将String映射到64位hash值
                 hash_lower ^= ((ch >= 'A' && ch <= 'Z') ? (ch + 32) : ch);
                 hash_lower *= 0x100000001b3L;
 
@@ -1762,7 +1764,7 @@ public class Lexer {
         char ch;
         for (;;) {
             ch = charAt(++pos);
-
+            //小数点不能作为起始符号
             if (!isIdentifierChar(ch)) {
                 break;
             }
@@ -1787,7 +1789,7 @@ public class Lexer {
             }
             return;
         }
-
+        //获取table name标识符的分词结果
         Token tok = keywods.getKeyword(hash_lower);
         if (tok != null) {
             token = tok;

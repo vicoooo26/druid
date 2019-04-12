@@ -32,7 +32,7 @@ public class DB2Lexer extends Lexer {
         Map<String, Token> map = new HashMap<String, Token>();
 
         map.putAll(Keywords.DEFAULT_KEYWORDS.getKeywords());
-        
+        map.put("DEFINITION",Token.DEFINITION);
         map.put("FETCH", Token.FETCH);
         map.put("FIRST", Token.FIRST);
         map.put("ONLY", Token.ONLY);

@@ -16,19 +16,30 @@
 package com.alibaba.druid.sql.dialect.db2.ast.stmt;
 
 import com.alibaba.druid.sql.ast.SQLName;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.dialect.db2.ast.DB2Statement;
 import com.alibaba.druid.sql.dialect.db2.visitor.DB2ASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+import com.alibaba.druid.util.JdbcConstants;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DB2CreateTableStatement extends SQLCreateTableStatement implements DB2Statement {
     private boolean dataCaptureNone;
     private boolean dataCaptureChanges;
 
+    // TODO add property about definition only
+    protected SQLObject restriction;
+
     protected SQLName database;
     protected SQLName validproc;
     protected SQLName indexIn;
 
+    public DB2CreateTableStatement() {
+            super (JdbcConstants.DB2);
+    }
     public boolean isDataCaptureNone() {
         return dataCaptureNone;
     }
@@ -78,6 +89,17 @@ public class DB2CreateTableStatement extends SQLCreateTableStatement implements 
         this.indexIn = x;
     }
 
+    public SQLObject getRestriction() {
+        return restriction;
+    }
+
+    public void setRestriction(SQLObject restriction) {
+        if (restriction != null) {
+            restriction.setParent(this);
+        }
+        this.restriction = restriction;
+    }
+
     @Override
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor instanceof DB2ASTVisitor) {
@@ -98,6 +120,7 @@ public class DB2CreateTableStatement extends SQLCreateTableStatement implements 
             this.acceptChild(visitor, database);
             this.acceptChild(visitor, validproc);
             this.acceptChild(visitor, indexIn);
+            this.acceptChild(visitor,like);
         }
         visitor.endVisit(this);
     }

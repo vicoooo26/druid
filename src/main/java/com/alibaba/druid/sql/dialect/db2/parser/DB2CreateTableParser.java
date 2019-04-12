@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.sql.dialect.db2.parser;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.SQLPartitionByHash;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
@@ -23,12 +24,15 @@ import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLTableElement;
+import com.alibaba.druid.sql.dialect.db2.ast.DB2CreateRestriction;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2CreateTableStatement;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLCreateTableParser;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.Token;
 import com.alibaba.druid.util.FnvHash;
+import com.alibaba.druid.util.JdbcConstants;
+import org.apache.calcite.linq4j.tree.LambdaExpression;
 
 public class DB2CreateTableParser extends SQLCreateTableParser {
     public DB2CreateTableParser(String sql) {
@@ -39,6 +43,7 @@ public class DB2CreateTableParser extends SQLCreateTableParser {
         super(exprParser);
     }
 
+    //TODO 重写建表的parser
     public SQLCreateTableStatement parseCreateTable(boolean acceptCreate) {
         DB2CreateTableStatement createTable = newCreateStatement();
 
@@ -70,8 +75,14 @@ public class DB2CreateTableParser extends SQLCreateTableParser {
         }
 
         accept(Token.TABLE);
-
         createTable.setName(this.exprParser.name());
+
+
+        if (lexer.token() == Token.LIKE) {
+            lexer.nextTokenValue();
+            SQLName name = this.exprParser.name();
+            createTable.setLike(name);
+        }
 
         if (lexer.token() == Token.LPAREN) {
             lexer.nextToken();
@@ -91,7 +102,7 @@ public class DB2CreateTableParser extends SQLCreateTableParser {
                     constraint.setParent(createTable);
                     createTable.getTableElementList().add((SQLTableElement) constraint);
                 } else if (token == Token.TABLESPACE) {
-                    throw new ParserException("TODO "  + lexer.info());
+                    throw new ParserException("TODO " + lexer.info());
                 } else {
                     SQLColumnDefinition column = this.exprParser.parseColumn();
                     createTable.getTableElementList().add(column);
@@ -120,13 +131,7 @@ public class DB2CreateTableParser extends SQLCreateTableParser {
             }
         }
 
-        if (lexer.token() == Token.AS) {
-            lexer.nextToken();
-            SQLSelect select = this.createSQLSelectParser().select();
-            createTable.setSelect(select);
-        }
-
-        for (;;) {
+        for (; ; ) {
             if (lexer.identifierEquals(FnvHash.Constants.DATA)) {
                 lexer.nextToken();
                 acceptIdentifier("CAPTURE");
@@ -137,7 +142,7 @@ public class DB2CreateTableParser extends SQLCreateTableParser {
                     continue;
                 }
 
-                throw new ParserException("TODO "  + lexer.info());
+                throw new ParserException("TODO " + lexer.info());
             } else if (lexer.token() == Token.IN) {
                 lexer.nextToken();
 
@@ -146,7 +151,7 @@ public class DB2CreateTableParser extends SQLCreateTableParser {
                     SQLName database = this.exprParser.name();
                     createTable.setDatabase(database);
                 } else if (lexer.identifierEquals("tablespace")) {
-                    throw new ParserException("TODO "  + lexer.info());
+                    throw new ParserException("TODO " + lexer.info());
                 } else {
                     SQLName tablespace = this.exprParser.name();
                     createTable.setTablespace(tablespace);
@@ -186,6 +191,28 @@ public class DB2CreateTableParser extends SQLCreateTableParser {
                 continue;
             }
             break;
+        }
+
+        if (lexer.token() == Token.AS) {
+            lexer.nextToken();
+            SQLSelect select = this.createSQLSelectParser().select();
+            createTable.setSelect(select);
+        }
+
+        if (lexer.token() == Token.SELECT) {
+            SQLSelect query = new DB2SelectParser(this.exprParser).select();
+            createTable.setSelect(query);
+        }
+
+        if (lexer.token() == Token.DEFINITION) {
+            lexer.nextToken();
+            if (lexer.token() == Token.ONLY) {
+                lexer.nextToken();
+            } else {
+                throw new ParserException("syntax error. " + lexer.info());
+            }
+
+            createTable.setRestriction(new DB2CreateRestriction.DefinitionOnly());
         }
 
         return createTable;

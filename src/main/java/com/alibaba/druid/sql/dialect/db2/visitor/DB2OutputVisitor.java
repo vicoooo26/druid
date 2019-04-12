@@ -21,8 +21,8 @@ import com.alibaba.druid.sql.ast.SQLPartitionBy;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIntervalExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntervalUnit;
-import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
+import com.alibaba.druid.sql.ast.statement.*;
+import com.alibaba.druid.sql.dialect.db2.ast.DB2CreateRestriction;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2CreateTableStatement;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2SelectQueryBlock;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2ValuesStatement;
@@ -83,8 +83,42 @@ public class DB2OutputVisitor extends SQLASTOutputVisitor implements DB2ASTVisit
     }
 
     @Override
+    public boolean visit(DB2CreateRestriction.DefinitionOnly x) {
+        print0(ucase ? "DEFINITION ONLY" : "definition only");
+        return false;
+    }
+
+    @Override
+    public void endVisit(DB2CreateRestriction.DefinitionOnly x) {
+
+    }
+
+    @Override
     public boolean visit(DB2CreateTableStatement x) {
-        printCreateTable(x, true);
+        //TODO refactor to support LIKE clause
+        if (isPrettyFormat() && x.hasBeforeComment()) {
+            printlnComment(x.getBeforeCommentsDirect());
+        }
+        //添加到Appendable中,toString()
+        print0(ucase ? "CREATE " : "create ");
+
+        if (SQLCreateTableStatement.Type.GLOBAL_TEMPORARY.equals(x.getType())) {
+            print0(ucase ? "TEMPORARY TABLE " : "temporary table ");
+        } else {
+            print0(ucase ? "TABLE " : "table ");
+        }
+
+        printTableSourceExpr(x.getName());
+
+        if (x.getLike() != null) {
+            print0(ucase ? " LIKE " : " like ");
+            x.getLike().accept(this);
+        }
+
+        printTableElements(x.getTableElementList());
+
+
+//        printCreateTable(x, true);
 
         if (x.isDataCaptureNone()) {
             println();
@@ -138,13 +172,42 @@ public class DB2OutputVisitor extends SQLASTOutputVisitor implements DB2ASTVisit
                 print0(ucase ? "COMPRESS NO" : "compress no");
             }
         }
-
+        SQLSelect select = x.getSelect();
+        if (select != null) {
+            println();
+            print0(ucase ? "AS" : "as");
+            println();
+            x.getSelect().accept(this);
+        }
         return false;
     }
 
     @Override
     public void endVisit(DB2CreateTableStatement x) {
 
+    }
+
+    public boolean visit(SQLExprTableSource x) {
+        printTableSourceExpr(x.getExpr());
+
+        String alias = x.getAlias();
+        if (alias != null) {
+            print(' ');
+            print0(alias);
+        }
+
+        for (int i = 0; i < x.getHintsSize(); ++i) {
+            print(' ');
+            x.getHints().get(i).accept(this);
+        }
+
+        if (x.getPartitionSize() > 0) {
+            print0(ucase ? " PARTITION (" : " partition (");
+            printlnAndAccept(x.getPartitions(), ", ");
+            print(')');
+        }
+
+        return false;
     }
 
     protected void printOperator(SQLBinaryOperator operator) {

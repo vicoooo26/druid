@@ -286,7 +286,7 @@ public class SQLParser {
         throw new ParserException("syntax error, error in :'" + arround + "', expect " + token + ", actual "
                                   + lexer.token + " " + lexer.info());
     }
-
+    // 根据当前Token与预期Token是否相同来决定是否进行下一次分词
     public void accept(Token token) {
         if (lexer.token == token) {
             lexer.nextToken();

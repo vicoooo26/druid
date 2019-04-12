@@ -34,7 +34,7 @@ public class MySqlCreateTableTest19 extends MysqlTest {
         MySqlStatementParser parser = new MySqlStatementParser(sql);
         List<SQLStatement> statementList = parser.parseStatementList();
         SQLStatement stmt = statementList.get(0);
-        
+
         Assert.assertEquals("CREATE TABLE new_tbl LIKE orig_tbl;", //
                             SQLUtils.toMySqlString(stmt));
         Assert.assertEquals("create table new_tbl like orig_tbl;", //
