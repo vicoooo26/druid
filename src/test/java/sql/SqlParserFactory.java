@@ -2,6 +2,8 @@ package sql;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import sql.druid.DruidSqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +47,16 @@ public class SqlParserFactory {
     }
 
     public static void main(String[] args) {
-        db2Lineage();
+        // done
+//        db2Lineage();
+        // done
 //        mysqlLineage();
-//        oracleLineage();
+        oracleLineage();
     }
 
     protected static void mysqlLineage() {
+        ISqlParser mySqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.MySQL);
+
         // 创建数据库
         String mysql1 = "create database test1";
 
@@ -75,6 +81,25 @@ public class SqlParserFactory {
         String mysql9 = "create procedure test1.empty_param()" +
                 " begin" +
                 " end";
+        System.out.println(SQLUtils.format(mysql1, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql2, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql3, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql4, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql5, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql6, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql7, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql8, "mysql"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(mysql9, "mysql"));
+        System.out.println("\n");
+
         List<SQLStatement> mysql1Result = SQLUtils.parseStatements(mysql1, "mysql");
         List<SQLStatement> mysql2Result = SQLUtils.parseStatements(mysql2, "mysql");
         List<SQLStatement> mysql3Result = SQLUtils.parseStatements(mysql3, "mysql");
@@ -84,6 +109,13 @@ public class SqlParserFactory {
         List<SQLStatement> mysql7Result = SQLUtils.parseStatements(mysql7, "mysql");
         List<SQLStatement> mysql8Result = SQLUtils.parseStatements(mysql8, "mysql");
         List<SQLStatement> mysql9Result = SQLUtils.parseStatements(mysql9, "mysql");
+
+
+        mySqlParser.getTargetSourceTableMap(mysql2);
+        mySqlParser.getTargetSourceTableMap(mysql5);
+        mySqlParser.getTargetSourceTableMap(mysql6);
+        mySqlParser.getTargetSourceTableMap(mysql7);
+
         System.out.println("");
     }
 
@@ -98,28 +130,19 @@ public class SqlParserFactory {
                 " check (sex in('男','女'))\n" +
                 ");";
 
-        List<SQLStatement> oracleSql1Result = SQLUtils.parseStatements(oracleSql1, "oracle");
-
-
         String oracleSql2 = "create table test1.table1(id number, name varchar2(10), age number, address varchar2(10));";
-        List<SQLStatement> oracleSql2Result = SQLUtils.parseStatements(oracleSql2, "oracle");
 
         String oracleSql3 = "create table test1.table2 as select id,name,age,address from test1.table1;";
-        List<SQLStatement> oracleSql3Result = SQLUtils.parseStatements(oracleSql3, "oracle");
 
         String oracleSql4 = "create table test1.table3 as select id,name,age,address from test1.table2;";
-        List<SQLStatement> oracleSql4Result = SQLUtils.parseStatements(oracleSql4, "oracle");
-
 
         String oracleSql5 = "CREATE VIEW TEST1.TEST_VIEW AS SELECT * FROM TEST1.STUDENT;";
-        List<SQLStatement> oracleSql5Result = SQLUtils.parseStatements(oracleSql5, "oracle");
 
         String oracleSql6 = "create or replace procedure test_procedure(a Date, b VARCHAR2, c INT) is\n" +
                 " x int;\n" +
                 "begin\n" +
                 " x := 123;\n" +
                 "end;";
-        List<SQLStatement> oracleSql6Result = SQLUtils.parseStatements(oracleSql6, "oracle");
 
         String oracleSql7 = "create or replace\n" +
                 "PACKAGE Test_package is\n" +
@@ -161,11 +184,37 @@ public class SqlParserFactory {
                 "end;\n" +
                 "\n" +
                 "end Test_package;";
-        List<SQLStatement> oracleSql7Result = SQLUtils.parseStatements(oracleSql7, "oracle");
-        System.out.println("");
 
-//        Map<String, List<String>> sourceTargetTableMapOracle1 = oracleSqlParser.getTargetSourceTableMap(oracleSql1);
-//        Map<String, List<String>> sourceTargetTableMapOracle2 = oracleSqlParser.getTargetSourceTableMap(oracleSql2);
+        System.out.println(SQLUtils.format(oracleSql1, "oracle"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(oracleSql2, "oracle"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(oracleSql3, "oracle"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(oracleSql4, "oracle"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(oracleSql5, "oracle"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(oracleSql6, "oracle"));
+        System.out.println("\n");
+        System.out.println(SQLUtils.format(oracleSql7, "oracle"));
+        System.out.println("\n");
+
+        List<SQLStatement> oracleSql1Result = SQLUtils.parseStatements(oracleSql1, "oracle");
+        List<SQLStatement> oracleSql2Result = SQLUtils.parseStatements(oracleSql2, "oracle");
+        List<SQLStatement> oracleSql3Result = SQLUtils.parseStatements(oracleSql3, "oracle");
+        List<SQLStatement> oracleSql4Result = SQLUtils.parseStatements(oracleSql4, "oracle");
+        List<SQLStatement> oracleSql5Result = SQLUtils.parseStatements(oracleSql5, "oracle");
+        List<SQLStatement> oracleSql6Result = SQLUtils.parseStatements(oracleSql6, "oracle");
+        List<SQLStatement> oracleSql7Result = SQLUtils.parseStatements(oracleSql7, "oracle");
+
+        Map<String, List<String>> sourceTargetTableMapOracle1 = oracleSqlParser.getTargetSourceTableMap(oracleSql1);
+        Map<String, List<String>> sourceTargetTableMapOracle2 = oracleSqlParser.getTargetSourceTableMap(oracleSql2);
+        Map<String, List<String>> sourceTargetTableMapOracle3 = oracleSqlParser.getTargetSourceTableMap(oracleSql3);
+        Map<String, List<String>> sourceTargetTableMapOracle4 = oracleSqlParser.getTargetSourceTableMap(oracleSql4);
+        Map<String, List<String>> sourceTargetTableMapOracle5 = oracleSqlParser.getTargetSourceTableMap(oracleSql5);
+
+        System.out.println("");
     }
 
     protected static void db2Lineage() {
@@ -173,16 +222,10 @@ public class SqlParserFactory {
         // parser lexer done,  lineage done
         String db2Sql1 = "create table table1(id bigint, name varchar(20), age int, address varchar(50))";
         String db2FormatSql1 = SQLUtils.format(db2Sql1, "db2");
-        List<SQLStatement> db2Statements1 = SQLUtils.parseStatements(db2FormatSql1, "db2");
-        System.out.println(db2FormatSql1);
-        System.out.println("\n");
 
         // parser lexer done, lineage not done
         String db2Sql2 = "CREATE TABLE test1.table2 LIKE test1.table1";
         String db2FormatSql2 = SQLUtils.format(db2Sql2, "db2");
-        List<SQLStatement> db2Statements2 = SQLUtils.parseStatements(db2FormatSql2, "db2");
-        System.out.println(db2FormatSql2);
-        System.out.println("\n");
 
         // compare mysql to db2
 //        String mysqlFormatSql2 = SQLUtils.format(db2Sql2,"mysql");
@@ -192,46 +235,50 @@ public class SqlParserFactory {
         // parser lexer done,  lineage not done - view as source not found
         String db2Sql3 = "CREATE VIEW test1.view1 AS (SELECT id,name,age,address FROM test1.table1)";
         String db2FormatSql3 = SQLUtils.format(db2Sql3, "db2");
-        List<SQLStatement> db2Statements3 = SQLUtils.parseStatements(db2FormatSql3, "db2");
-        System.out.println(db2FormatSql3);
-        System.out.println("\n");
 
         // parser lexer done,  lineage done
         String db2Sql4 = "create table table2 as (select id,name,age,address from table1) definition only";
         String db2FormatSql4 = SQLUtils.format(db2Sql4, "db2");
-        List<SQLStatement> db2Statements4 = SQLUtils.parseStatements(db2FormatSql4, "db2");
-        System.out.println(db2FormatSql4);
-        System.out.println("\n");
 
         // parser lexer done,  lineage done
         String db2Sql5 = "create table table3 as (select * from table2) definition only";
         String db2FormatSql5 = SQLUtils.format(db2Sql5, "db2");
-        List<SQLStatement> db2Statements5 = SQLUtils.parseStatements(db2FormatSql5, "db2");
-        System.out.println(db2FormatSql5);
-        System.out.println("\n");
 
         // parser lexer done,  lineage not done
         String db2Sql6 = "CREATE OR REPLACE PROCEDURE INSERT_TABLE1 (IN in_id INTEGER,IN in_name VARCHAR(20)) BEGIN END";
         String db2FormatSql6 = SQLUtils.format(db2Sql6, "db2");
-        List<SQLStatement> db2Statements6 = SQLUtils.parseStatements(db2FormatSql6, "db2");
-        System.out.println(db2FormatSql6);
-        System.out.println("\n");
 
         // parser lexer done,  lineage not done
         String db2Sql7 = "insert into table1(id,name,age,address) values(1, 'mark', 18, 'shanghai')";
         String db2FormatSql7 = SQLUtils.format(db2Sql7, "db2");
-        List<SQLStatement> db2Statements7 = SQLUtils.parseStatements(db2FormatSql7, "db2");
+
+        System.out.println(db2FormatSql1);
+        System.out.println("\n");
+        System.out.println(db2FormatSql2);
+        System.out.println("\n");
+        System.out.println(db2FormatSql3);
+        System.out.println("\n");
+        System.out.println(db2FormatSql4);
+        System.out.println("\n");
+        System.out.println(db2FormatSql5);
+        System.out.println("\n");
+        System.out.println(db2FormatSql6);
+        System.out.println("\n");
         System.out.println(db2FormatSql7);
         System.out.println("\n");
 
+        List<SQLStatement> db2Statements1 = SQLUtils.parseStatements(db2FormatSql1, "db2");
+        List<SQLStatement> db2Statements2 = SQLUtils.parseStatements(db2FormatSql2, "db2");
+        List<SQLStatement> db2Statements3 = SQLUtils.parseStatements(db2FormatSql3, "db2");
+        List<SQLStatement> db2Statements4 = SQLUtils.parseStatements(db2FormatSql4, "db2");
+        List<SQLStatement> db2Statements5 = SQLUtils.parseStatements(db2FormatSql5, "db2");
+        List<SQLStatement> db2Statements6 = SQLUtils.parseStatements(db2FormatSql6, "db2");
+        List<SQLStatement> db2Statements7 = SQLUtils.parseStatements(db2FormatSql7, "db2");
+
         Map<String, List<String>> sourceTargetTableMapDB2_1 = db2SqlParser.getTargetSourceTableMap(db2Sql1);
-
         Map<String, List<String>> sourceTargetTableMapDB2_2 = db2SqlParser.getTargetSourceTableMap(db2Sql2);
-
         Map<String, List<String>> sourceTargetTableMapDB2_3 = db2SqlParser.getTargetSourceTableMap(db2Sql3);
-
         Map<String, List<String>> sourceTargetTableMapDB2_4 = db2SqlParser.getTargetSourceTableMap(db2Sql4);
-
         Map<String, List<String>> sourceTargetTableMapDB2_5 = db2SqlParser.getTargetSourceTableMap(db2Sql5);
 
         System.out.println("");

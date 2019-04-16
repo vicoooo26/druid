@@ -10,7 +10,9 @@ import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.stat.TableStat.Name;
 import com.alibaba.druid.util.JdbcConstants;
+import sql.ASTVisitotFactory;
 import sql.ISqlParser;
+import sql.SqlParseType;
 
 import static org.apache.commons.lang.StringUtils.*;
 
@@ -19,8 +21,7 @@ import java.util.*;
 public class DruidSqlParser implements ISqlParser {
 
     private String dbType;
-    // init visitor here
-//    private SchemaStatVisitor visitor;
+
     public DruidSqlParser(String dbType) {
         this.dbType = dbType;
     }
@@ -115,9 +116,7 @@ public class DruidSqlParser implements ISqlParser {
             if (stmt instanceof SQLUseStatement) {
                 database = ((SQLUseStatement) stmt).getDatabase().getSimpleName().toUpperCase();
             }
-            // TODO 需要定义一个DB2LineageVisitor
-//      SchemaStatVisitor visitor = SQLUtils.createSchemaStatVisitor(dbType);
-            SchemaStatVisitor visitor = new DB2LineageVisitor();
+            SchemaStatVisitor visitor = ASTVisitotFactory.getInstance().createSchemaStatVisitor(SqlParseType.typeOf(dbType));
             stmt.accept(visitor);
             Map<Name, TableStat> tables = visitor.getTables();
             if (null == tables) {
