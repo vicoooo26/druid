@@ -15,9 +15,7 @@
  */
 package com.alibaba.druid.sql.dialect.db2.visitor;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLPartitionBy;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIntervalExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntervalUnit;
@@ -31,11 +29,11 @@ import com.alibaba.druid.util.JdbcConstants;
 
 public class DB2OutputVisitor extends SQLASTOutputVisitor implements DB2ASTVisitor {
 
-    public DB2OutputVisitor(Appendable appender){
+    public DB2OutputVisitor(Appendable appender) {
         super(appender, JdbcConstants.DB2);
     }
 
-    public DB2OutputVisitor(Appendable appender, boolean parameterized){
+    public DB2OutputVisitor(Appendable appender, boolean parameterized) {
         super(appender, parameterized);
         this.dbType = JdbcConstants.DB2;
     }
@@ -84,6 +82,7 @@ public class DB2OutputVisitor extends SQLASTOutputVisitor implements DB2ASTVisit
 
     @Override
     public boolean visit(DB2CreateRestriction.DefinitionOnly x) {
+        println();
         print0(ucase ? "DEFINITION ONLY" : "definition only");
         return false;
     }
@@ -179,11 +178,106 @@ public class DB2OutputVisitor extends SQLASTOutputVisitor implements DB2ASTVisit
             println();
             x.getSelect().accept(this);
         }
+
+        if (x.getRestriction() != null) {
+//            print0(ucase ? " LIKE " : " like ");
+            x.getRestriction().accept(this);
+        }
+
+
         return false;
     }
 
     @Override
     public void endVisit(DB2CreateTableStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(SQLCreateProcedureStatement x) {
+        boolean create = x.isCreate();
+        if (!create) {
+            print0(ucase ? "PROCEDURE " : "procedure ");
+        } else if (x.isOrReplace()) {
+            print0(ucase ? "CREATE OR REPLACE PROCEDURE " : "create or replace procedure ");
+        } else {
+            print0(ucase ? "CREATE PROCEDURE " : "create procedure ");
+        }
+        x.getName().accept(this);
+
+        int paramSize = x.getParameters().size();
+
+        if (paramSize > 0) {
+            print0(" (");
+            this.indentCount++;
+            println();
+
+            for (int i = 0; i < paramSize; ++i) {
+                if (i != 0) {
+                    print0(", ");
+                    println();
+                }
+                SQLParameter param = x.getParameters().get(i);
+                param.accept(this);
+            }
+
+            this.indentCount--;
+            println();
+            print(')');
+        }
+
+        SQLName authid = x.getAuthid();
+        if (authid != null) {
+            print(ucase ? " AUTHID " : " authid ");
+            authid.accept(this);
+        }
+
+        SQLStatement block = x.getBlock();
+        String wrappedSource = x.getWrappedSource();
+        if (wrappedSource != null) {
+            print0(ucase ? " WRAPPED " : " wrapped ");
+            print0(wrappedSource);
+        } else {
+            if (block != null && !create) {
+                println();
+                print("IS");
+                println();
+            } else {
+                println();
+//                if (block instanceof SQLBlockStatement) {
+//                    SQLBlockStatement blockStatement = (SQLBlockStatement) block;
+//                    if (blockStatement.getParameters().size() > 0 || authid != null) {
+//                        println(ucase ? "AS" : "as");
+//                    } else {
+//                        println(ucase ? "IS" : "is");
+//                    }
+//                }
+            }
+
+            String javaCallSpec = x.getJavaCallSpec();
+            if (javaCallSpec != null) {
+                print0(ucase ? "LANGUAGE JAVA NAME '" : "language java name '");
+                print0(javaCallSpec);
+                print('\'');
+                return false;
+            }
+        }
+
+        boolean afterSemi = false;
+        if (block != null) {
+            block.accept(this);
+
+            if (block instanceof SQLBlockStatement
+                    && ((SQLBlockStatement) block).getStatementList().size() > 0) {
+                afterSemi = ((SQLBlockStatement) block).getStatementList().get(0).isAfterSemi();
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLCreateProcedureStatement x) {
 
     }
 

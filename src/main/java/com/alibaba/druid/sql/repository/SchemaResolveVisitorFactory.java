@@ -375,6 +375,7 @@ class SchemaResolveVisitorFactory {
 
         public boolean visit(SQLCreateTableStatement x) {
             resolve(this, x);
+            // TODO
             return false;
         }
 

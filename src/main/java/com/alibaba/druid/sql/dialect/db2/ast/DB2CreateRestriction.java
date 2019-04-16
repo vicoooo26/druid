@@ -8,7 +8,7 @@ public abstract class DB2CreateRestriction extends DB2ObjectImpl {
 
     public static class DefinitionOnly extends DB2CreateRestriction {
 
-        public DefinitionOnly(){
+        public DefinitionOnly() {
 
         }
 

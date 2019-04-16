@@ -23,9 +23,6 @@ import com.alibaba.druid.sql.dialect.db2.visitor.DB2ASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 import com.alibaba.druid.util.JdbcConstants;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 public class DB2CreateTableStatement extends SQLCreateTableStatement implements DB2Statement {
     private boolean dataCaptureNone;
     private boolean dataCaptureChanges;
@@ -38,8 +35,9 @@ public class DB2CreateTableStatement extends SQLCreateTableStatement implements 
     protected SQLName indexIn;
 
     public DB2CreateTableStatement() {
-            super (JdbcConstants.DB2);
+        super(JdbcConstants.DB2);
     }
+
     public boolean isDataCaptureNone() {
         return dataCaptureNone;
     }
@@ -120,7 +118,8 @@ public class DB2CreateTableStatement extends SQLCreateTableStatement implements 
             this.acceptChild(visitor, database);
             this.acceptChild(visitor, validproc);
             this.acceptChild(visitor, indexIn);
-            this.acceptChild(visitor,like);
+            this.acceptChild(visitor, like);
+            this.acceptChild(visitor, restriction);
         }
         visitor.endVisit(this);
     }

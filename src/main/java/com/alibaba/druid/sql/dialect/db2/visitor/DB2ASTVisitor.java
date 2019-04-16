@@ -26,15 +26,17 @@ public interface DB2ASTVisitor extends SQLASTVisitor {
     boolean visit(DB2SelectQueryBlock x);
 
     void endVisit(DB2SelectQueryBlock x);
-    
+
     boolean visit(DB2ValuesStatement x);
-    
+
     void endVisit(DB2ValuesStatement x);
 
     boolean visit(DB2CreateTableStatement x);
+
     void endVisit(DB2CreateTableStatement x);
 
     boolean visit(DB2CreateRestriction.DefinitionOnly x);
+
     void endVisit(DB2CreateRestriction.DefinitionOnly x);
 
 }

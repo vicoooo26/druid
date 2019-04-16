@@ -38,18 +38,18 @@ import com.alibaba.druid.sql.visitor.functions.Function;
 
 public class DB2EvalVisitor extends DB2ASTVisitorAdapter implements SQLEvalVisitor {
 
-    private Map<String, Function> functions        = new HashMap<String, Function>();
-    private List<Object>          parameters       = new ArrayList<Object>();
+    private Map<String, Function> functions = new HashMap<String, Function>();
+    private List<Object> parameters = new ArrayList<Object>();
 
-    private int                   variantIndex     = -1;
+    private int variantIndex = -1;
 
-    private boolean               markVariantIndex = true;
+    private boolean markVariantIndex = true;
 
-    public DB2EvalVisitor(){
+    public DB2EvalVisitor() {
         this(new ArrayList<Object>(1));
     }
 
-    public DB2EvalVisitor(List<Object> parameters){
+    public DB2EvalVisitor(List<Object> parameters) {
         this.parameters = parameters;
     }
 
@@ -135,7 +135,7 @@ public class DB2EvalVisitor extends DB2ASTVisitorAdapter implements SQLEvalVisit
     public void registerFunction(String funcName, Function function) {
         functions.put(funcName, function);
     }
-    
+
     @Override
     public void unregisterFunction(String funcName) {
         functions.remove(funcName);

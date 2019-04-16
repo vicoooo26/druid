@@ -43,6 +43,7 @@ public class Keywords {
         map.put("AND", Token.AND);
         map.put("ANY", Token.ANY);
         map.put("AS", Token.AS);
+        map.put("BEGIN", Token.BEGIN);
 
         map.put("ENABLE", Token.ENABLE);
         map.put("DISABLE", Token.DISABLE);

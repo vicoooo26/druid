@@ -28,12 +28,15 @@ import java.util.List;
 public class OracleCreateViewTest10_with_read_only extends OracleTest {
 
     public void test_types() throws Exception {
-        String sql = //
-        "CREATE VIEW customer_ro (name, language, credit)\n" +
-                "      AS SELECT cust_last_name, nls_language, credit_limit\n" +
-                "      FROM customers\n" +
-                "      WITH READ ONLY;";
-
+//        String sql = //
+//        "CREATE VIEW customer_ro (name, language, credit)\n" +
+//                "      AS SELECT cust_last_name, nls_language, credit_limit\n" +
+//                "      FROM customers\n" +
+//                "      WITH READ ONLY;";
+        String sql = "CREATE VIEW customer_ro (name, language, credit)\n" +
+                "AS SELECT *\n" +
+                "FROM A" +
+                "WITH READ ONLY;";
         OracleStatementParser parser = new OracleStatementParser(sql);
         List<SQLStatement> statementList = parser.parseStatementList();
         SQLStatement stmt = statementList.get(0);
@@ -50,7 +53,7 @@ public class OracleCreateViewTest10_with_read_only extends OracleTest {
                         "SELECT cust_last_name, nls_language, credit_limit\n" +
                         "FROM customers\n" +
                         "WITH READ ONLY;",//
-                            SQLUtils.toSQLString(stmt, JdbcConstants.ORACLE));
+                SQLUtils.toSQLString(stmt, JdbcConstants.ORACLE));
 
         OracleSchemaStatVisitor visitor = new OracleSchemaStatVisitor();
         stmt.accept(visitor);

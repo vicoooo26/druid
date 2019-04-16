@@ -146,7 +146,7 @@ public class DB2StatementParser extends SQLStatementParser {
         }
 
         // parse create procedure
-        if (lexer.token() == Token.PROCEDURE ) {
+        if (lexer.token() == Token.PROCEDURE) {
             if (replace) {
                 lexer.reset(markBp, markChar, Token.CREATE);
             }
@@ -264,7 +264,7 @@ public class DB2StatementParser extends SQLStatementParser {
             accept(Token.RPAREN);// match ")"
         }
 
-        for (;;) {
+        for (; ; ) {
             if (lexer.identifierEquals(FnvHash.Constants.DETERMINISTIC)) {
                 lexer.nextToken();
                 stmt.setDeterministic(true);
@@ -295,7 +295,6 @@ public class DB2StatementParser extends SQLStatementParser {
         }
 
         stmt.setBlock(block);
-
         return stmt;
     }
 
