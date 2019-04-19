@@ -6,13 +6,14 @@ import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.teradata.visitor.TeradataASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+import com.alibaba.druid.util.JdbcConstants;
 
 public class TeradataSelectQueryBlock extends SQLSelectQueryBlock {
-    private SQLOrderBy    orderBy;
+    private SQLOrderBy orderBy;
     private SQLExpr qualifyClause;
 
     public TeradataSelectQueryBlock() {
-
+        dbType = JdbcConstants.TERADATA;
     }
 
     @Override

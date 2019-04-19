@@ -1,5 +1,6 @@
-package com.alibaba.druid.sql.dialect.db2.ast;
+package com.alibaba.druid.sql.dialect.db2.ast.stmt;
 
+import com.alibaba.druid.sql.dialect.db2.ast.DB2ObjectImpl;
 import com.alibaba.druid.sql.dialect.db2.visitor.DB2ASTVisitor;
 
 public abstract class DB2CreateRestriction extends DB2ObjectImpl {

@@ -57,7 +57,7 @@ public class SqlParserFactory {
         // done, lineage visitor not done
 //        sqlServerLineage();
 
-        teradataLineage();
+//        teradataLineage();
     }
 
 
@@ -389,6 +389,8 @@ public class SqlParserFactory {
 
     protected static void teradataLineage() {
         String str1 = "create database test2 as perm=200000000,spool=100000000;";
+
+        String teradata1 = SQLUtils.format(str1, "teradata");
         String str2 = "select * from dbc.dbcinfo;";
         String str3 = "create multiset table test1.table1(id integer, name varchar(30), age integer, address varchar(30)) unique primary index(id);\n";
         String str4 = "create multiset table test1.table2(id decimal(10,3), name varchar(30), age integer, address varchar(30)) unique primary index(id);\n";

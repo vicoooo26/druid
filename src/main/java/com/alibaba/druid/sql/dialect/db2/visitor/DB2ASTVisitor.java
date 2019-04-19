@@ -15,7 +15,7 @@
  */
 package com.alibaba.druid.sql.dialect.db2.visitor;
 
-import com.alibaba.druid.sql.dialect.db2.ast.DB2CreateRestriction;
+import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2CreateRestriction;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2CreateTableStatement;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2SelectQueryBlock;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2ValuesStatement;

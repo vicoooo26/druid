@@ -42,6 +42,9 @@ import com.alibaba.druid.sql.dialect.postgresql.parser.PGSQLStatementParser;
 import com.alibaba.druid.sql.dialect.sqlserver.parser.SQLServerExprParser;
 import com.alibaba.druid.sql.dialect.sqlserver.parser.SQLServerLexer;
 import com.alibaba.druid.sql.dialect.sqlserver.parser.SQLServerStatementParser;
+import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataSelectQueryBlock;
+import com.alibaba.druid.sql.dialect.teradata.parser.TeradataExprParser;
+import com.alibaba.druid.sql.dialect.teradata.parser.TeradataLexer;
 import com.alibaba.druid.sql.dialect.teradata.parser.TeradataStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
 import com.alibaba.druid.util.JdbcUtils;
@@ -154,6 +157,9 @@ public class SQLParserUtils {
         if (JdbcUtils.PHOENIX.equals(dbType)) {
             return new PhoenixExprParser(sql);
         }
+        if (JdbcUtils.TERADATA.equals(dbType)) {
+            return new TeradataExprParser(sql);
+        }
 
         return new SQLExprParser(sql);
     }
@@ -190,6 +196,10 @@ public class SQLParserUtils {
             return new PhoenixLexer(sql);
         }
 
+        if (JdbcConstants.TERADATA.equals(dbType)) {
+            return new TeradataLexer(sql);
+        }
+
         return new Lexer(sql);
     }
 
@@ -217,6 +227,11 @@ public class SQLParserUtils {
         if (JdbcConstants.SQL_SERVER.equals(dbType)) {
             return new DB2SelectQueryBlock();
         }
+
+        if (JdbcConstants.TERADATA.equals(dbType)) {
+            return new TeradataSelectQueryBlock();
+        }
+
 
         return new SQLSelectQueryBlock();
     }
