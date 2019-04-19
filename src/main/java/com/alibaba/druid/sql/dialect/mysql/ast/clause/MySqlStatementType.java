@@ -30,15 +30,15 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlUpdateStatement;
  * @author zz [455910092@qq.com]
  */
 public enum MySqlStatementType {
-	//select statement
+	//select stmt
 	SELECT(SQLSelectStatement.class.getName()),
-	//update statement
+	//update stmt
 	UPDATE(MySqlUpdateStatement.class.getName()),
-	//insert statement
+	//insert stmt
 	INSERT(MySqlInsertStatement.class.getName()),
-	//delete statement
+	//delete stmt
 	DELETE(MySqlDeleteStatement.class.getName()),
-	//while statement
+	//while stmt
 	WHILE(SQLWhileStatement.class.getName()),
 	//begin-end
 	IF(SQLIfStatement.class.getName()),
@@ -46,7 +46,7 @@ public enum MySqlStatementType {
 	LOOP(SQLLoopStatement.class.getName()),
 	//begin-end
 	BLOCK(SQLBlockStatement.class.getName()),
-	//declare statement
+	//declare stmt
 	DECLARE(MySqlDeclareStatement.class.getName()),
 	//select into
 	SELECTINTO(MySqlSelectIntoStatement.class.getName()),

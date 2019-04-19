@@ -28,7 +28,7 @@ public class MySqlCursorDeclareStatement extends MySqlStatementImpl{
 	
 	//cursor name
 	private SQLName cursorName;
-	//select statement
+	//select stmt
 	private SQLSelect select;
 	
 	public SQLName getCursorName() {

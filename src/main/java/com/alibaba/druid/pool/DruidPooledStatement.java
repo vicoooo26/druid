@@ -176,9 +176,9 @@ public class DruidPooledStatement extends PoolableWrapper implements Statement {
             }
 
             if (disableError != null) {
-                throw new SQLException("statement is closed", disableError);
+                throw new SQLException("stmt is closed", disableError);
             } else {
-                throw new SQLException("statement is closed");
+                throw new SQLException("stmt is closed");
             }
         }
     }

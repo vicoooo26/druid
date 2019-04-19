@@ -96,7 +96,7 @@ public class OracleUtils {
         OraclePreparedStatement unwrapped = stmt.unwrap(OraclePreparedStatement.class);
 
         if (unwrapped == null) {
-            LOG.error("can not unwrap statement : " + stmt.getClass());
+            LOG.error("can not unwrap stmt : " + stmt.getClass());
         }
 
         return unwrapped;

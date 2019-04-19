@@ -50,7 +50,7 @@ GO
 DECLARE @MyCursor CURSOR;
 SET @MyCursor = CURSOR LOCAL SCROLL FOR
 SELECT * FROM Sales.SalesTerritory;
--- The following statement deallocates the cursor
+-- The following stmt deallocates the cursor
 -- because no other variables reference it.
 DEALLOCATE @MyCursor;
 GO
@@ -195,7 +195,7 @@ OPEN contact_cursor;
 
 -- Perform the first fetch and store the values in variables.
 -- Note: The variables are in the same order as the columns
--- in the SELECT statement. 
+-- in the SELECT stmt.
 
 FETCH NEXT FROM contact_cursor
 INTO @LastName, @FirstName;
@@ -221,7 +221,7 @@ GO
 
 USE AdventureWorks2012;
 GO
--- Execute the SELECT statement alone to show the 
+-- Execute the SELECT stmt alone to show the
 -- full result set that is used by the cursor.
 SELECT LastName, FirstName FROM Person.Person
 ORDER BY LastName, FirstName;

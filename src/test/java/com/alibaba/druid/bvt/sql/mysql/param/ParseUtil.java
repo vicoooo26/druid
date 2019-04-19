@@ -177,7 +177,7 @@ public class ParseUtil {
             List<SQLStatement> stmtList = SQLUtils.parseStatements(sql, JdbcConstants.MYSQL);
             return stmtList.get(0);
         } catch (Exception ex) {
-            logger.error("get statement error", ex);
+            logger.error("get stmt error", ex);
         }
         return null;
     }

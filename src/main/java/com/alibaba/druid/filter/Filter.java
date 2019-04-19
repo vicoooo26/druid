@@ -675,7 +675,7 @@ public interface Filter extends Wrapper {
     void resultSet_updateNClob(FilterChain chain, ResultSetProxy resultSet, String columnLabel, Reader reader)
                                                                                                               throws SQLException;
 
-    // / statement
+    // / stmt
 
     ResultSetProxy statement_executeQuery(FilterChain chain, StatementProxy statement, String sql) throws SQLException;
 

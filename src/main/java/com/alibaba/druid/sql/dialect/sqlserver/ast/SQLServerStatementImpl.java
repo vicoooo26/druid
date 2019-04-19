@@ -18,11 +18,12 @@ package com.alibaba.druid.sql.dialect.sqlserver.ast;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+import com.alibaba.druid.util.JdbcConstants;
 
 public abstract class SQLServerStatementImpl extends SQLStatementImpl implements SQLServerStatement {
 
     public SQLServerStatementImpl(){
-
+        super (JdbcConstants.SQL_SERVER);
     }
 
     @Override

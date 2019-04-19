@@ -37,7 +37,7 @@ public class InformixExceptionSorter implements ExceptionSorter, Serializable {
             case -79730: // Connection noit established
             case -79734: // INFORMIXSERVER has to be specified
             case -79735: // Can't instantiate protocol
-            case -79736: // No connection/statement established yet
+            case -79736: // No connection/stmt established yet
             case -79756: // Invalid connection URL
             case -79757: // Invalid subprotocol
             case -79758: // Invalid IP address

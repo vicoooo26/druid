@@ -43,11 +43,11 @@ public class SQLDeleteBuilderImpl implements SQLDeleteBuilder {
         List<SQLStatement> stmtList = SQLUtils.parseStatements(sql, dbType);
 
         if (stmtList.size() == 0) {
-            throw new IllegalArgumentException("not support empty-statement :" + sql);
+            throw new IllegalArgumentException("not support empty-stmt :" + sql);
         }
 
         if (stmtList.size() > 1) {
-            throw new IllegalArgumentException("not support multi-statement :" + sql);
+            throw new IllegalArgumentException("not support multi-stmt :" + sql);
         }
 
         SQLDeleteStatement stmt = (SQLDeleteStatement) stmtList.get(0);

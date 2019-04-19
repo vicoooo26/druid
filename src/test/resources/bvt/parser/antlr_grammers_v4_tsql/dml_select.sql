@@ -626,7 +626,7 @@ FROM Sales.SalesOrderDetail
 WHERE SalesOrderDetailID = 1;
 GO
 
--- SET statement
+-- SET stmt
 SET ANSI_WARNINGS OFF;
 SELECT id FROM tbl;
 GO
@@ -706,7 +706,7 @@ SET @doc ='
 </ROOT>';  
 --Create an internal representation of the XML document.  
 EXEC sp_xml_preparedocument @idoc OUTPUT, @doc;  
--- Execute a SELECT statement that uses the OPENXML rowset provider.  
+-- Execute a SELECT stmt that uses the OPENXML rowset provider.
 SELECT    *  
 FROM       OPENXML (@idoc, '/ROOT/Customer',1)  
             WITH (CustomerID  varchar(10),  

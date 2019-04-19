@@ -31,7 +31,7 @@ public class MySqlDeclareHandlerStatement extends MySqlStatementImpl{
 	
 	//handler type
 	private MySqlHandlerType handleType; 
-	//sp statement
+	//sp stmt
 	private SQLStatement spStatement;
 	
 	private List<ConditionValue> conditionValues;

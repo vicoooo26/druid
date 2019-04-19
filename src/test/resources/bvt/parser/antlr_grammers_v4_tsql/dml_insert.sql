@@ -383,7 +383,7 @@ INSERT INTO Production.Location WITH (XLOCK)
 VALUES ( N'Final Inventory', 15.00, 80.00);
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- A Using OUTPUT with an INSERT statement
+-- A Using OUTPUT with an INSERT stmt
 
 DECLARE @MyTableVar table( NewScrapReasonID smallint,
                            Name varchar(50),

@@ -292,6 +292,9 @@ public enum Token {
     CONCAT("CONCAT"),
     DEFINITION("DEFINITION"),
 
+    //sql server
+    LOGIN("LOGIN"),
+
     UPSERT("UPSERT"), // Phoenix
 
     LPAREN("("), 

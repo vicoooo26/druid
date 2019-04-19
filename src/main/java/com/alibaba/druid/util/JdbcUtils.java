@@ -99,7 +99,7 @@ public final class JdbcUtils implements JdbcConstants {
         try {
             x.close();
         } catch (Exception e) {
-            LOG.debug("close statement error", e);
+            LOG.debug("close stmt error", e);
         }
     }
 

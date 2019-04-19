@@ -95,8 +95,8 @@ WITH (max_dispatch_latency = 1 seconds)
 
 CREATE EVENT SESSION RingBufferExampleSession ON SERVER
     ADD EVENT sqlserver.error_reported
-    -- collect failed SQL statement, the SQL stack that led to the error,
-    -- the database id in which the error happened and the username that ran the statement
+    -- collect failed SQL stmt, the SQL stack that led to the error,
+    -- the database id in which the error happened and the username that ran the stmt
     (
         ACTION (sqlserver.sql_text, sqlserver.tsql_stack, sqlserver.database_id,
 			sqlserver.username)

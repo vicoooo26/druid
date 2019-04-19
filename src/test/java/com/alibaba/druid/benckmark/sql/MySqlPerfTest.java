@@ -66,8 +66,8 @@ public class MySqlPerfTest extends TestCase {
         MySqlOutputVisitor visitor = new MySqlOutputVisitor(out);
         MySqlStatementParser parser = new MySqlStatementParser(sql);
         List<SQLStatement> statementList = parser.parseStatementList();
-        // for (SQLStatement statement : statementList) {
-        // statement.accept(visitor);
+        // for (SQLStatement stmt : statementList) {
+        // stmt.accept(visitor);
         // visitor.println();
         // }
         return out.toString();

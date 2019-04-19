@@ -2656,7 +2656,7 @@ public class WallVisitorUtils {
             errorCode = ErrorCode.START_TRANSACTION_NOT_ALLOW;
         } else if (x instanceof SQLBlockStatement) {
             allow = config.isBlockAllow();
-            denyMessage = "block statement not allow";
+            denyMessage = "block stmt not allow";
             errorCode = ErrorCode.BLOCK_NOT_ALLOW;
         } else if (x instanceof SQLExplainStatement
                 || x instanceof MySqlOptimizeStatement) {

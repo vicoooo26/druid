@@ -18,23 +18,16 @@ package com.alibaba.druid.sql.dialect.sqlserver.parser;
 import java.util.Arrays;
 import java.util.List;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
-import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
-import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
-import com.alibaba.druid.sql.ast.expr.SQLSequenceExpr;
+import com.alibaba.druid.sql.ast.*;
+import com.alibaba.druid.sql.ast.expr.*;
+import com.alibaba.druid.sql.ast.statement.SQLCharacterDataType;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerOutput;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerTop;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.expr.SQLServerObjectReferenceExpr;
-import com.alibaba.druid.sql.parser.Lexer;
-import com.alibaba.druid.sql.parser.SQLExprParser;
-import com.alibaba.druid.sql.parser.SQLParserFeature;
-import com.alibaba.druid.sql.parser.Token;
+import com.alibaba.druid.sql.parser.*;
 import com.alibaba.druid.util.FnvHash;
 import com.alibaba.druid.util.JdbcConstants;
 
@@ -80,6 +73,203 @@ public class SQLServerExprParser extends SQLExprParser {
         this(new SQLServerLexer(sql, features));
         this.lexer.nextToken();
         this.dbType = JdbcConstants.SQL_SERVER;
+    }
+
+    public SQLDataType parseDataType() {
+        return parseDataType(true);
+    }
+
+    // TODO returns为类型，会与TABLE冲突，需要解决
+    public SQLDataType parseDataType(boolean restrict) {
+        Token token = lexer.token();
+        if (token == Token.DEFAULT || token == Token.NOT || token == Token.NULL) {
+            return null;
+        }
+
+        SQLName typeExpr = name();
+        final long typeNameHashCode = typeExpr.nameHashCode64();
+        String typeName = typeExpr.toString();
+
+        if (typeNameHashCode == FnvHash.Constants.LONG
+                && lexer.identifierEquals(FnvHash.Constants.BYTE)
+                && JdbcConstants.MYSQL.equals(getDbType()) //
+        ) {
+            typeName += (' ' + lexer.stringVal());
+            lexer.nextToken();
+        } else if (typeNameHashCode == FnvHash.Constants.DOUBLE
+                && JdbcConstants.POSTGRESQL.equals(getDbType()) //
+        ) {
+            typeName += (' ' + lexer.stringVal());
+            lexer.nextToken();
+        }
+
+        if (typeNameHashCode == FnvHash.Constants.UNSIGNED) {
+            if (lexer.token() == Token.IDENTIFIER) {
+                typeName += (' ' + lexer.stringVal());
+                lexer.nextToken();
+            }
+        }
+
+        if (isCharType(typeName)) {
+            SQLCharacterDataType charType = new SQLCharacterDataType(typeName);
+
+            if (lexer.token() == Token.LPAREN) {
+                lexer.nextToken();
+                SQLExpr arg = this.expr();
+                arg.setParent(charType);
+                charType.addArgument(arg);
+                accept(Token.RPAREN);
+            }
+
+            charType = (SQLCharacterDataType) parseCharTypeRest(charType);
+
+            if (lexer.token() == Token.HINT) {
+                List<SQLCommentHint> hints = this.parseHints();
+                charType.setHints(hints);
+            }
+
+            return charType;
+        }
+
+        if ("character".equalsIgnoreCase(typeName) && "varying".equalsIgnoreCase(lexer.stringVal())) {
+            typeName += ' ' + lexer.stringVal();
+            lexer.nextToken();
+        }
+
+        SQLDataType dataType = new SQLDataTypeImpl(typeName);
+        dataType.setDbType(dbType);
+
+        return parseDataTypeRest(dataType);
+    }
+
+    // 获取SQLName的name
+    public SQLName name() {
+        String identName;
+        long hash = 0;
+        if (lexer.token() == Token.LITERAL_ALIAS) {
+            identName = lexer.stringVal();
+            lexer.nextToken();
+        } else if (lexer.token() == Token.IDENTIFIER) {
+            identName = lexer.stringVal();
+
+            char c0 = identName.charAt(0);
+            if (c0 != '[') {
+                hash = lexer.hash_lower();
+            }
+            lexer.nextToken();
+        } else if (lexer.token() == Token.LITERAL_CHARS) {
+            identName = '\'' + lexer.stringVal() + '\'';
+            lexer.nextToken();
+        } else if (lexer.token() == Token.VARIANT) {
+            identName = lexer.stringVal();
+            lexer.nextToken();
+        } else if (lexer.token() == Token.WITH) {
+            identName = lexer.stringVal();
+            lexer.nextToken();
+        } else {
+            switch (lexer.token()) {
+                case MODEL:
+                case PCTFREE:
+                case INITRANS:
+                case MAXTRANS:
+                case SEGMENT:
+                case CREATION:
+                case IMMEDIATE:
+                case DEFERRED:
+                case STORAGE:
+                case NEXT:
+                case MINEXTENTS:
+                case MAXEXTENTS:
+                case MAXSIZE:
+                case PCTINCREASE:
+                case FLASH_CACHE:
+                case CELL_FLASH_CACHE:
+                case NONE:
+                case LOB:
+                case STORE:
+                case ROW:
+                case CHUNK:
+                case CACHE:
+                case NOCACHE:
+                case LOGGING:
+                case NOCOMPRESS:
+                case KEEP_DUPLICATES:
+                case EXCEPTIONS:
+                case PURGE:
+                case INITIALLY:
+                case END:
+                case COMMENT:
+                case ENABLE:
+                case DISABLE:
+                case SEQUENCE:
+                case USER:
+                case ANALYZE:
+                case OPTIMIZE:
+                case GRANT:
+                case REVOKE:
+                    // binary有很多含义，lexer识别了这个token，实际上应该当做普通IDENTIFIER
+                case BINARY:
+                case OVER:
+                case ORDER:
+                case DO:
+                case JOIN:
+                case TYPE:
+                case FUNCTION:
+                case KEY:
+                case SCHEMA:
+                case TABLE:
+                    identName = lexer.stringVal();
+                    lexer.nextToken();
+                    break;
+                case INTERVAL:
+                case EXPLAIN:
+                case PARTITION:
+                case SET:
+                case DEFAULT:
+                    identName = lexer.stringVal();
+                    lexer.nextToken();
+                    break;
+                default:
+                    throw new ParserException("error " + lexer.info());
+            }
+        }
+
+        SQLName name = new SQLIdentifierExpr(identName, hash);
+
+        name = nameRest(name);
+
+        return name;
+    }
+
+    public SQLExpr expr() {
+        if (lexer.token() == Token.STAR) {
+            lexer.nextToken();
+
+            SQLExpr expr = new SQLAllColumnExpr();
+
+            if (lexer.token() == Token.DOT) {
+                lexer.nextToken();
+                accept(Token.STAR);
+                return new SQLPropertyExpr(expr, "*");
+            }
+
+            return expr;
+        }
+
+        SQLExpr expr = primary();
+
+        Token token = lexer.token();
+        if (token == Token.COMMA) {
+            return expr;
+        } else if (token == Token.EQ) {
+            expr = relationalRest(expr);
+            expr = andRest(expr);
+            expr = xorRest(expr);
+            expr = orRest(expr);
+            return expr;
+        } else {
+            return exprRest(expr);
+        }
     }
 
     public SQLExpr primary() {

@@ -184,7 +184,7 @@ public class DruidPooledConnection extends PoolableWrapper implements javax.sql.
                     .remove(stmtHolder);
         } else {
             try {
-                //Connection behind the statement may be in invalid state, which will throw a SQLException.
+                //Connection behind the stmt may be in invalid state, which will throw a SQLException.
                 //In this case, the exception is desired to be properly handled to remove the unusable connection from the pool.
                 stmt.closeInternal();
             } catch (SQLException ex) {

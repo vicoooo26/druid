@@ -645,7 +645,7 @@ public abstract class WallProvider {
         }
 
         if (statementList.size() > 1 && !config.isMultiStatementAllow()) {
-            violations.add(new IllegalSQLObjectViolation(ErrorCode.MULTI_STATEMENT, "multi-statement not allow", sql));
+            violations.add(new IllegalSQLObjectViolation(ErrorCode.MULTI_STATEMENT, "multi-stmt not allow", sql));
         }
 
         WallVisitor visitor = createWallVisitor();

@@ -1294,7 +1294,7 @@ public class MySqlStatementParser extends SQLStatementParser {
         if (lexer.token() != Token.END
                 && statementList.size() > 0
                 && (statementList.get(statementList.size() - 1) instanceof SQLCommitStatement
-                    || statementList.get(statementList.size() - 1) instanceof SQLRollbackStatement)) {
+                || statementList.get(statementList.size() - 1) instanceof SQLRollbackStatement)) {
             block.setEndOfCommit(true);
             return block;
         }
@@ -1343,29 +1343,29 @@ public class MySqlStatementParser extends SQLStatementParser {
 
         boolean table = false;
         if (lexer.token() == Token.IDENTIFIER) {
-             String stringVal = lexer.stringVal();
+            String stringVal = lexer.stringVal();
 
-             if (stringVal.equalsIgnoreCase(EXTENDED)
-                     || stringVal.equalsIgnoreCase(PARTITIONS)) {
-                 explain.setType(stringVal);
-                 lexer.nextToken();
-             } else if (stringVal.equalsIgnoreCase(FORMAT)) {
-                 explain.setType(stringVal);
-                 lexer.nextToken();
-                 accept(Token.EQ);
+            if (stringVal.equalsIgnoreCase(EXTENDED)
+                    || stringVal.equalsIgnoreCase(PARTITIONS)) {
+                explain.setType(stringVal);
+                lexer.nextToken();
+            } else if (stringVal.equalsIgnoreCase(FORMAT)) {
+                explain.setType(stringVal);
+                lexer.nextToken();
+                accept(Token.EQ);
 
-                 String format = lexer.stringVal();
-                 explain.setFormat(format);
-                 accept(Token.IDENTIFIER);
-             } else {
-                 explain.setTableName(exprParser.name());
-                 if (lexer.token() == Token.IDENTIFIER) {
-                     explain.setColumnName(exprParser.name());
-                 } else if (lexer.token() == Token.LITERAL_CHARS) {
-                     explain.setWild(exprParser.expr());
-                 }
-                 table = true;
-             }
+                String format = lexer.stringVal();
+                explain.setFormat(format);
+                accept(Token.IDENTIFIER);
+            } else {
+                explain.setTableName(exprParser.name());
+                if (lexer.token() == Token.IDENTIFIER) {
+                    explain.setColumnName(exprParser.name());
+                } else if (lexer.token() == Token.LITERAL_CHARS) {
+                    explain.setWild(exprParser.expr());
+                }
+                table = true;
+            }
         }
 
         if (lexer.token() == Token.FOR) {
@@ -3934,7 +3934,7 @@ public class MySqlStatementParser extends SQLStatementParser {
                     renameStmt.addItem(item);
 
                     return renameStmt;
-                }   
+                }
             } else if (lexer.token() == Token.ORDER) {
                 throw new ParserException("TODO " + lexer.info());
             } else if (lexer.identifierEquals("CONVERT")) {

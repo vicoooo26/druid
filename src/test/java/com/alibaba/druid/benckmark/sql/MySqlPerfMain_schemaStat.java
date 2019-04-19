@@ -75,8 +75,8 @@ public class MySqlPerfMain_schemaStat {
         for (SQLStatement stmt : statementList) {
             stmt.accept(statVisitor);
         }
-        // for (SQLStatement statement : statementList) {
-        // statement.accept(visitor);
+        // for (SQLStatement stmt : statementList) {
+        // stmt.accept(visitor);
         // visitor.println();
         // }
         return "";

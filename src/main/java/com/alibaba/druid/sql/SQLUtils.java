@@ -15,31 +15,9 @@
  */
 package com.alibaba.druid.sql;
 
-import java.util.List;
-import java.util.Map;
-
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLObject;
-import com.alibaba.druid.sql.ast.SQLReplaceable;
-import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
-import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
-import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
-import com.alibaba.druid.sql.ast.expr.SQLLiteralExpr;
-import com.alibaba.druid.sql.ast.expr.SQLUnaryExpr;
-import com.alibaba.druid.sql.ast.expr.SQLUnaryOperator;
-import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
-import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
-import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
-import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
-import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSetStatement;
-import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
-import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
+import com.alibaba.druid.sql.ast.*;
+import com.alibaba.druid.sql.ast.expr.*;
+import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.db2.visitor.DB2OutputVisitor;
 import com.alibaba.druid.sql.dialect.db2.visitor.DB2SchemaStatVisitor;
 import com.alibaba.druid.sql.dialect.h2.visitor.H2OutputVisitor;
@@ -57,25 +35,17 @@ import com.alibaba.druid.sql.dialect.postgresql.visitor.PGOutputVisitor;
 import com.alibaba.druid.sql.dialect.postgresql.visitor.PGSchemaStatVisitor;
 import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerOutputVisitor;
 import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerSchemaStatVisitor;
-import com.alibaba.druid.sql.parser.Lexer;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.SQLExprParser;
-import com.alibaba.druid.sql.parser.SQLParserFeature;
-import com.alibaba.druid.sql.parser.SQLParserUtils;
-import com.alibaba.druid.sql.parser.SQLStatementParser;
-import com.alibaba.druid.sql.parser.Token;
+import com.alibaba.druid.sql.dialect.teradata.visitor.TeradataOutputVisitor;
+import com.alibaba.druid.sql.parser.*;
 import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 import com.alibaba.druid.sql.visitor.VisitorFeature;
 import com.alibaba.druid.support.logging.Log;
 import com.alibaba.druid.support.logging.LogFactory;
-import com.alibaba.druid.util.FnvHash;
-import com.alibaba.druid.util.JdbcConstants;
-import com.alibaba.druid.util.MySqlUtils;
-import com.alibaba.druid.util.OracleUtils;
-import com.alibaba.druid.util.PGUtils;
-import com.alibaba.druid.util.StringUtils;
-import com.alibaba.druid.util.Utils;
+import com.alibaba.druid.util.*;
+
+import java.util.List;
+import java.util.Map;
 
 public class SQLUtils {
     private final static SQLParserFeature[] FORMAT_DEFAULT_FEATURES = {
@@ -179,12 +149,28 @@ public class SQLUtils {
         return format(sql, JdbcConstants.SQL_SERVER);
     }
 
+    public static String formatTeradata(String sql) {
+        return format(sql, JdbcConstants.TERADATA);
+    }
+
+    public static String formatTeradata(String sql, FormatOption option) {
+        return format(sql, JdbcConstants.TERADATA, option);
+    }
+
     public static String toOracleString(SQLObject sqlObject) {
         return toOracleString(sqlObject, null);
     }
 
     public static String toOracleString(SQLObject sqlObject, FormatOption option) {
         return toSQLString(sqlObject, JdbcConstants.ORACLE, option);
+    }
+
+    public static String toTeradataString(SQLObject sqlObject) {
+        return toTeradataString(sqlObject, null);
+    }
+
+    public static String toTeradataString(SQLObject sqlObject, FormatOption option) {
+        return toSQLString(sqlObject, JdbcConstants.TERADATA, option);
     }
 
     public static String toPGString(SQLObject sqlObject) {
@@ -347,7 +333,7 @@ public class SQLUtils {
                 }
 
                 List<String> comments = preStmt.getAfterCommentsDirect();
-                if (comments != null){
+                if (comments != null) {
                     for (int j = 0; j < comments.size(); ++j) {
                         String comment = comments.get(j);
                         if (j != 0) {
@@ -367,8 +353,8 @@ public class SQLUtils {
             }
             {
                 List<String> comments = stmt.getBeforeCommentsDirect();
-                if (comments != null){
-                    for(String comment : comments) {
+                if (comments != null) {
+                    for (String comment : comments) {
                         visitor.printComment(comment);
                         visitor.println();
                     }
@@ -378,7 +364,7 @@ public class SQLUtils {
 
             if (i == size - 1) {
                 List<String> comments = stmt.getAfterCommentsDirect();
-                if (comments != null){
+                if (comments != null) {
                     for (int j = 0; j < comments.size(); ++j) {
                         String comment = comments.get(j);
                         if (j != 0) {
@@ -441,6 +427,9 @@ public class SQLUtils {
             return new MySqlOutputVisitor(out);
         }
 
+        if (JdbcConstants.TERADATA.equals(dbType)) {
+            return new TeradataOutputVisitor(out);
+        }
         return new SQLASTOutputVisitor(out, dbType);
     }
 
@@ -527,12 +516,12 @@ public class SQLUtils {
     }
 
     /**
-     * @author owenludong.lud
      * @param columnName
      * @param tableAlias
-     * @param pattern if pattern is null,it will be set {%Y-%m-%d %H:%i:%s} as mysql default value and set {yyyy-mm-dd
-     * hh24:mi:ss} as oracle default value
-     * @param dbType {@link JdbcConstants} if dbType is null ,it will be set the mysql as a default value
+     * @param pattern    if pattern is null,it will be set {%Y-%m-%d %H:%i:%s} as mysql default value and set {yyyy-mm-dd
+     *                   hh24:mi:ss} as oracle default value
+     * @param dbType     {@link JdbcConstants} if dbType is null ,it will be set the mysql as a default value
+     * @author owenludong.lud
      */
     public static String buildToDate(String columnName, String tableAlias, String pattern, String dbType) {
         StringBuilder sql = new StringBuilder();
@@ -602,11 +591,11 @@ public class SQLUtils {
         List<SQLStatement> stmtList = parseStatements(sql, dbType);
 
         if (stmtList.size() == 0) {
-            throw new IllegalArgumentException("not support empty-statement :" + sql);
+            throw new IllegalArgumentException("not support empty-stmt :" + sql);
         }
 
         if (stmtList.size() > 1) {
-            throw new IllegalArgumentException("not support multi-statement :" + sql);
+            throw new IllegalArgumentException("not support multi-stmt :" + sql);
         }
 
         SQLStatement stmt = stmtList.get(0);
@@ -675,11 +664,11 @@ public class SQLUtils {
         List<SQLStatement> stmtList = parseStatements(selectSql, dbType);
 
         if (stmtList.size() == 0) {
-            throw new IllegalArgumentException("not support empty-statement :" + selectSql);
+            throw new IllegalArgumentException("not support empty-stmt :" + selectSql);
         }
 
         if (stmtList.size() > 1) {
-            throw new IllegalArgumentException("not support multi-statement :" + selectSql);
+            throw new IllegalArgumentException("not support multi-stmt :" + selectSql);
         }
 
         SQLStatement stmt = stmtList.get(0);
@@ -794,7 +783,7 @@ public class SQLUtils {
 
         StringBuilder buf = new StringBuilder(sql.length());
 
-        for (;;) {
+        for (; ; ) {
             lexer.nextToken();
 
             Token token = lexer.token();
@@ -821,7 +810,7 @@ public class SQLUtils {
 
             SQLBinaryOperator notOp = null;
 
-            switch (op){
+            switch (op) {
                 case Equality:
                     notOp = SQLBinaryOperator.LessThanOrGreater;
                     break;
@@ -988,6 +977,7 @@ public class SQLUtils {
 
     /**
      * 重新排序建表语句，解决建表语句的依赖关系
+     *
      * @param sql
      * @param dbType
      * @return

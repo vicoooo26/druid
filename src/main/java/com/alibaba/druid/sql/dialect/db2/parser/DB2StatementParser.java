@@ -228,7 +228,7 @@ public class DB2StatementParser extends SQLStatementParser {
     }
 
     /**
-     * parse create procedure statement
+     * parse create procedure stmt
      */
     public SQLCreateProcedureStatement parseCreateProcedure() {
         /**
@@ -364,7 +364,7 @@ public class DB2StatementParser extends SQLStatementParser {
     }
 
     /**
-     * parse procedure statement block
+     * parse procedure stmt block
      *
      * @param statementList
      */
@@ -373,7 +373,7 @@ public class DB2StatementParser extends SQLStatementParser {
     }
 
     /**
-     * parse procedure statement block
+     * parse procedure stmt block
      */
     private void parseProcedureStatementList(List<SQLStatement> statementList, int max) {
 
@@ -479,57 +479,57 @@ public class DB2StatementParser extends SQLStatementParser {
                     throw new ParserException("TODO. " + lexer.info());
                 }
             }
-            // assign statement
+            // assign stmt
             if (lexer.token() == Token.SET) {
 //                statementList.add(this.parseAssign());
                 continue;
             }
 
-            // while statement
+            // while stmt
             if (lexer.token() == Token.WHILE) {
                 SQLStatement stmt = this.parseWhile();
                 statementList.add(stmt);
                 continue;
             }
 
-            // loop statement
+            // loop stmt
             if (lexer.token() == Token.LOOP) {
 //                statementList.add(this.parseLoop());
                 continue;
             }
 
-            // if statement
+            // if stmt
             if (lexer.token() == Token.IF) {
                 statementList.add(this.parseIf());
                 continue;
             }
 
-            // case statement
+            // case stmt
             if (lexer.token() == Token.CASE) {
                 statementList.add(this.parseCase());
                 continue;
             }
 
-            // declare statement
+            // declare stmt
             if (lexer.token() == Token.DECLARE) {
                 SQLStatement stmt = this.parseDeclare();
                 statementList.add(stmt);
                 continue;
             }
 
-            // leave statement
+            // leave stmt
             if (lexer.token() == Token.LEAVE) {
                 statementList.add(this.parseLeave());
                 continue;
             }
 
-            // iterate statement
+            // iterate stmt
             if (lexer.token() == Token.ITERATE) {
 //                statementList.add(this.parseIterate());
                 continue;
             }
 
-            // repeat statement
+            // repeat stmt
             if (lexer.token() == Token.REPEAT) {
                 statementList.add(this.parseRepeat());
                 continue;
@@ -566,16 +566,16 @@ public class DB2StatementParser extends SQLStatementParser {
                 if (lexer.token() == Token.VARIANT && lexer.stringVal().equals(":")) {
                     lexer.nextToken();
                     if (lexer.token() == Token.LOOP) {
-                        // parse loop statement
+                        // parse loop stmt
 //                        statementList.add(this.parseLoop(label));
                     } else if (lexer.token() == Token.WHILE) {
-                        // parse while statement with label
+                        // parse while stmt with label
 //                        statementList.add(this.parseWhile(label));
                     } else if (lexer.token() == Token.BEGIN) {
-                        // parse begin-end statement with label
+                        // parse begin-end stmt with label
 //                        statementList.add(this.parseBlock(label));
                     } else if (lexer.token() == Token.REPEAT) {
-                        // parse repeat statement with label
+                        // parse repeat stmt with label
 //                        statementList.add(this.parseRepeat(label));
                     }
                     continue;

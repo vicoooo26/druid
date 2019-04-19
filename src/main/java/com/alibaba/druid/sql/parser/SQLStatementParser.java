@@ -2975,7 +2975,7 @@ public class SQLStatementParser extends SQLParser {
     }
 
     /**
-     * parse cursor open statement
+     * parse cursor open stmt
      * 
      * @return
      */

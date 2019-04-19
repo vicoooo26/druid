@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.druid.sql.dialect.db2.ast;
+package com.alibaba.druid.sql.dialect.db2.ast.stmt;
 
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.dialect.db2.ast.DB2Object;
 
 public interface DB2Statement extends SQLStatement, DB2Object {
 }

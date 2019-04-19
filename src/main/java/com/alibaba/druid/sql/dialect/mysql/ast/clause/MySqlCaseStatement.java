@@ -33,9 +33,9 @@ public class MySqlCaseStatement extends MySqlStatementImpl{
 
 	//case expr
 	private SQLExpr            		  condition;
-	//when statement list
+	//when stmt list
 	private List<MySqlWhenStatement> whenList = new ArrayList<MySqlCaseStatement.MySqlWhenStatement>();
-	//else statement
+	//else stmt
 	private SQLIfStatement.Else        elseItem;
 	
 	public SQLExpr getCondition() {
@@ -91,7 +91,7 @@ public class MySqlCaseStatement extends MySqlStatementImpl{
 	}
 
 	/**
-	 * case when statement
+	 * case when stmt
 	 * @author zz
 	 *
 	 */

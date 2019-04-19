@@ -13,7 +13,7 @@
 -- END
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using a SELECT statement with a simple CASE expression
+-- Using a SELECT stmt with a simple CASE expression
 
 USE AdventureWorks2012;
 GO
@@ -31,7 +31,7 @@ ORDER BY ProductNumber;
 GO
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using a SELECT statement with a searched CASE expression
+-- Using a SELECT stmt with a searched CASE expression
 
 USE AdventureWorks2012;
 GO
@@ -63,7 +63,7 @@ ORDER BY CASE CountryRegionName WHEN 'United States' THEN TerritoryName
          ELSE CountryRegionName END;
          
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using CASE in an UPDATE statement
+-- Using CASE in an UPDATE stmt
 
 USE AdventureWorks2012;
 GO
@@ -79,7 +79,7 @@ OUTPUT Deleted.BusinessEntityID, Deleted.VacationHours AS BeforeValue,
 WHERE SalariedFlag = 0; 
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using CASE in a SET statement
+-- Using CASE in a SET stmt
 -- TODO: uncomment when create_function will be implemented.
 
 -- USE AdventureWorks2012;

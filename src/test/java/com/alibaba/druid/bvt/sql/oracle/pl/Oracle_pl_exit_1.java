@@ -34,7 +34,7 @@ public class Oracle_pl_exit_1 extends OracleTest {
 				"    x := x + 1;  -- prevents infinite loop\n" +
 				"    EXIT WHEN x > 3;\n" +
 				"  END LOOP;\n" +
-				"  -- After EXIT statement, control resumes here\n" +
+				"  -- After EXIT stmt, control resumes here\n" +
 				"  DBMS_OUTPUT.PUT_LINE('After loop:  x = ' || TO_CHAR(x));\n" +
 				"END;"; //
 

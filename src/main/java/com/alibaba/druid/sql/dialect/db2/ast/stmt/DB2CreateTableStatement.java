@@ -18,7 +18,6 @@ package com.alibaba.druid.sql.dialect.db2.ast.stmt;
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
-import com.alibaba.druid.sql.dialect.db2.ast.DB2Statement;
 import com.alibaba.druid.sql.dialect.db2.visitor.DB2ASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 import com.alibaba.druid.util.JdbcConstants;
@@ -27,7 +26,6 @@ public class DB2CreateTableStatement extends SQLCreateTableStatement implements 
     private boolean dataCaptureNone;
     private boolean dataCaptureChanges;
 
-    // TODO add property about definition only
     protected SQLObject restriction;
 
     protected SQLName database;

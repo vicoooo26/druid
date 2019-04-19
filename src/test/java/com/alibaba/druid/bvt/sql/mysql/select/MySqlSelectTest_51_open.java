@@ -26,7 +26,7 @@ import java.util.List;
 public class MySqlSelectTest_51_open extends MysqlTest {
 
     public void test_0() throws Exception {
-        String sql = "select id as id,    gmt_create as gmtCreate,    gmt_modified as gmtModified,    name as name,    owner as owner,    type as type,    statement as statement,    datasource as datasource,    meta as meta,    param_file as paramFile,    sharable as sharable,    data_type as dataType,    status as status,    config as config,    project_id as projectId,    plugins as plugins,    field_compare as fieldCompare,    field_ext as fieldExt,    open as open   from tb_001     where id = 12569434";
+        String sql = "select id as id,    gmt_create as gmtCreate,    gmt_modified as gmtModified,    name as name,    owner as owner,    type as type,    stmt as stmt,    datasource as datasource,    meta as meta,    param_file as paramFile,    sharable as sharable,    data_type as dataType,    status as status,    config as config,    project_id as projectId,    plugins as plugins,    field_compare as fieldCompare,    field_ext as fieldExt,    open as open   from tb_001     where id = 12569434";
 
 
         List<SQLStatement> statementList = SQLUtils.parseStatements(sql, JdbcConstants.MYSQL, true);
@@ -50,7 +50,7 @@ public class MySqlSelectTest_51_open extends MysqlTest {
         {
             String output = SQLUtils.toMySqlString(stmt);
             assertEquals("SELECT id AS id, gmt_create AS gmtCreate, gmt_modified AS gmtModified, name AS name, owner AS owner\n" +
-                            "\t, type AS type, statement AS statement, datasource AS datasource, meta AS meta, param_file AS paramFile\n" +
+                            "\t, type AS type, stmt AS stmt, datasource AS datasource, meta AS meta, param_file AS paramFile\n" +
                             "\t, sharable AS sharable, data_type AS dataType, status AS status, config AS config, project_id AS projectId\n" +
                             "\t, plugins AS plugins, field_compare AS fieldCompare, field_ext AS fieldExt, open AS open\n" +
                             "FROM tb_001\n" +
@@ -60,7 +60,7 @@ public class MySqlSelectTest_51_open extends MysqlTest {
         {
             String output = SQLUtils.toMySqlString(stmt, SQLUtils.DEFAULT_LCASE_FORMAT_OPTION);
             assertEquals("select id as id, gmt_create as gmtCreate, gmt_modified as gmtModified, name as name, owner as owner\n" +
-                            "\t, type as type, statement as statement, datasource as datasource, meta as meta, param_file as paramFile\n" +
+                            "\t, type as type, stmt as stmt, datasource as datasource, meta as meta, param_file as paramFile\n" +
                             "\t, sharable as sharable, data_type as dataType, status as status, config as config, project_id as projectId\n" +
                             "\t, plugins as plugins, field_compare as fieldCompare, field_ext as fieldExt, open as open\n" +
                             "from tb_001\n" +
@@ -71,7 +71,7 @@ public class MySqlSelectTest_51_open extends MysqlTest {
         {
             String output = SQLUtils.toMySqlString(stmt, new SQLUtils.FormatOption(true, true, true));
             assertEquals("SELECT id AS id, gmt_create AS gmtCreate, gmt_modified AS gmtModified, name AS name, owner AS owner\n" +
-                            "\t, type AS type, statement AS statement, datasource AS datasource, meta AS meta, param_file AS paramFile\n" +
+                            "\t, type AS type, stmt AS stmt, datasource AS datasource, meta AS meta, param_file AS paramFile\n" +
                             "\t, sharable AS sharable, data_type AS dataType, status AS status, config AS config, project_id AS projectId\n" +
                             "\t, plugins AS plugins, field_compare AS fieldCompare, field_ext AS fieldExt, open AS open\n" +
                             "FROM tb\n" +

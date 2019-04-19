@@ -15,17 +15,14 @@
  */
 package com.alibaba.druid.sql.dialect.sqlserver.visitor;
 
+import com.alibaba.druid.sql.ast.statement.SQLCreateFunctionStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateUserStatement;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerOutput;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerTop;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.expr.SQLServerObjectReferenceExpr;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerExecStatement;
+import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.*;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerExecStatement.SQLServerParameter;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerInsertStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerRollbackStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerSetTransactionIsolationLevelStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerUpdateStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerWaitForStatement;
 import com.alibaba.druid.sql.visitor.SQLASTVisitorAdapter;
 
 public class SQLServerASTVisitorAdapter extends SQLASTVisitorAdapter implements SQLServerASTVisitor {
@@ -87,7 +84,7 @@ public class SQLServerASTVisitorAdapter extends SQLASTVisitorAdapter implements 
 
     @Override
     public void endVisit(SQLServerExecStatement x) {
-        
+
     }
 
     @Override
@@ -97,7 +94,7 @@ public class SQLServerASTVisitorAdapter extends SQLASTVisitorAdapter implements 
 
     @Override
     public void endVisit(SQLServerSetTransactionIsolationLevelStatement x) {
-        
+
     }
 
     @Override
@@ -117,7 +114,7 @@ public class SQLServerASTVisitorAdapter extends SQLASTVisitorAdapter implements 
 
     @Override
     public void endVisit(SQLServerRollbackStatement x) {
-        
+
     }
 
     @Override
@@ -127,7 +124,7 @@ public class SQLServerASTVisitorAdapter extends SQLASTVisitorAdapter implements 
 
     @Override
     public void endVisit(SQLServerWaitForStatement x) {
-        
+
     }
 
     @Override
@@ -137,6 +134,56 @@ public class SQLServerASTVisitorAdapter extends SQLASTVisitorAdapter implements 
 
     @Override
     public void endVisit(SQLServerParameter x) {
+
+    }
+
+    @Override
+    public boolean visit(SQLServerCreateUserStatement x) {
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLServerCreateUserStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(SQLServerCreateLoginStatement x) {
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLServerCreateLoginStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(SQLServerDropLoginStatement x) {
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLServerDropLoginStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(SQLServerCreateSchemaStatement x) {
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLServerCreateSchemaStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(SQLCreateFunctionStatement x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(SQLCreateFunctionStatement x) {
 
     }
 

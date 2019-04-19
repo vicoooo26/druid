@@ -29,7 +29,7 @@ public class OracleBlockTest17 extends OracleTest {
         String sql = "DECLARE\n" +
                 "  x NUMBER := 0;\n" +
                 "BEGIN\n" +
-                "  LOOP -- After CONTINUE statement, control resumes here\n" +
+                "  LOOP -- After CONTINUE stmt, control resumes here\n" +
                 "    DBMS_OUTPUT.PUT_LINE ('Inside loop:  x = ' || TO_CHAR(x));\n" +
                 "    x := x + 1;\n" +
                 "    IF x < 3 THEN\n" +

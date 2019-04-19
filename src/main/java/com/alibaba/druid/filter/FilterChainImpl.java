@@ -2821,7 +2821,7 @@ public class FilterChainImpl implements FilterChain {
         resultSet.getResultSetRaw().updateNClob(columnLabel, reader);
     }
 
-    // //////////////////////////////////////// statement
+    // //////////////////////////////////////// stmt
     @Override
     public ResultSetProxy statement_executeQuery(StatementProxy statement, String sql) throws SQLException {
         if (this.pos < filterSize) {

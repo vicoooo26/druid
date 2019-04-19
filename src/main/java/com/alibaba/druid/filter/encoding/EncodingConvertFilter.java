@@ -310,7 +310,7 @@ public class EncodingConvertFilter extends FilterAdapter {
         return super.connection_nativeSQL(chain, connection, encodedSql);
     }
 
-    // ////////////// statement
+    // ////////////// stmt
 
     @Override
     public void statement_addBatch(FilterChain chain, StatementProxy statement, String sql) throws SQLException {

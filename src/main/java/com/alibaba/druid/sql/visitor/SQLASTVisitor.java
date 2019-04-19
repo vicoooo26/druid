@@ -83,7 +83,7 @@ import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.alibaba.druid.sql.ast.statement.*;
 
 public interface SQLASTVisitor {
-
+    // visit方法表明是否访问SQL的某个谓语
     void endVisit(SQLAllColumnExpr x);
 
     void endVisit(SQLBetweenExpr x);

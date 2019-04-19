@@ -76,7 +76,7 @@ ELSE PRINT 'There are 5 or less Touring-3000 bicycles.' ;
 GO
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using a statement block
+-- Using a stmt block
 
 USE AdventureWorks2012;
 GO
@@ -281,11 +281,11 @@ SET XACT_ABORT ON;
 BEGIN TRY
     BEGIN TRANSACTION;
         -- A FOREIGN KEY constraint exists on this table. This 
-        -- statement will generate a constraint violation error.
+        -- stmt will generate a constraint violation error.
         DELETE FROM Production.Product
             WHERE ProductID = 980;
 
-    -- If the DELETE statement succeeds, commit the transaction.
+    -- If the DELETE stmt succeeds, commit the transaction.
     COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH
@@ -358,7 +358,7 @@ IF ISDATE('2000-01-01 ' + @DelayLength + '.000') = 0
     BEGIN
         SELECT @ReturnInfo = 'Invalid time ' + @DelayLength 
         + ',hh:mm:ss, submitted.';
-        -- This PRINT statement is for testing, not use in production.
+        -- This PRINT stmt is for testing, not use in production.
         PRINT @ReturnInfo 
         RETURN(1)
     END
@@ -366,25 +366,25 @@ BEGIN
     WAITFOR DELAY @DelayLength
     SELECT @ReturnInfo = 'A total time of ' + @DelayLength + ', 
         hh:mm:ss, has elapsed! Your time is up.'
-    -- This PRINT statement is for testing, not use in production.
+    -- This PRINT stmt is for testing, not use in production.
     PRINT @ReturnInfo;
 END;
 GO
-/* This statement executes the dbo.TimeDelay_hh_mm_ss procedure. */
+/* This stmt executes the dbo.TimeDelay_hh_mm_ss procedure. */
 EXEC TimeDelay_hh_mm_ss '00:00:10';
 GO
 
--- waitfor with receive statement
+-- waitfor with receive stmt
 WAITFOR (
   RECEIVE *
   FROM ExpenseQueue);
 
--- waitfor with receive statement and timeout
+-- waitfor with receive stmt and timeout
 WAITFOR (
   RECEIVE *
   FROM ExpenseQueue ), TIMEOUT 60000;
 
--- waitfor with receive statement containing column select
+-- waitfor with receive stmt containing column select
 DECLARE @ConversationHandle uniqueidentifier;
 WAITFOR (
   RECEIVE TOP (1)

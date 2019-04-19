@@ -28,7 +28,7 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor;
  */
 public class MySqlSelectIntoStatement extends MySqlStatementImpl{
 
-	//select statement
+	//select stmt
 	private SQLSelect select;
 	//var list
 	private List<SQLExpr> varList=new ArrayList<SQLExpr>();

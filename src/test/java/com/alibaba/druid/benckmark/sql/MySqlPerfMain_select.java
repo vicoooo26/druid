@@ -70,8 +70,8 @@ public class MySqlPerfMain_select {
         // MySqlOutputVisitor visitor = new MySqlOutputVisitor(out);
 //        MySqlASTVisitorAdapter visitor = new MySqlASTVisitorAdapter();
 //
-//        for (SQLStatement statement : statementList) {
-//            statement.accept(visitor);
+//        for (SQLStatement stmt : statementList) {
+//            stmt.accept(visitor);
 //        }
         // out.toString();
     }

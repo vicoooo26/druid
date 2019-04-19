@@ -15,54 +15,30 @@
  */
 package com.alibaba.druid.sql.dialect.sqlserver.visitor;
 
-import java.util.List;
-
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLOrderBy;
-import com.alibaba.druid.sql.ast.SQLSetQuantifier;
-import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLSequenceExpr;
-import com.alibaba.druid.sql.ast.statement.SQLAlterTableAddColumn;
-import com.alibaba.druid.sql.ast.statement.SQLAssignItem;
-import com.alibaba.druid.sql.ast.statement.SQLBlockStatement;
-import com.alibaba.druid.sql.ast.statement.SQLColumnConstraint;
-import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
-import com.alibaba.druid.sql.ast.statement.SQLCommitStatement;
-import com.alibaba.druid.sql.ast.statement.SQLCreateUserStatement;
-import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
-import com.alibaba.druid.sql.ast.statement.SQLGrantStatement;
-import com.alibaba.druid.sql.ast.statement.SQLScriptCommitStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSelect;
-import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
-import com.alibaba.druid.sql.ast.statement.SQLSetStatement;
-import com.alibaba.druid.sql.ast.statement.SQLStartTransactionStatement;
-import com.alibaba.druid.sql.ast.statement.SQLTableSource;
-import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
+import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerOutput;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerTop;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.expr.SQLServerObjectReferenceExpr;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerExecStatement;
+import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.*;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerExecStatement.SQLServerParameter;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerInsertStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerRollbackStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerSetTransactionIsolationLevelStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerUpdateStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerWaitForStatement;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
 import com.alibaba.druid.util.FnvHash;
 import com.alibaba.druid.util.JdbcConstants;
 
+import java.util.List;
+
 public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLServerASTVisitor {
 
-    public SQLServerOutputVisitor(Appendable appender){
+    public SQLServerOutputVisitor(Appendable appender) {
         super(appender, JdbcConstants.SQL_SERVER);
     }
 
-    public SQLServerOutputVisitor(Appendable appender, boolean parameterized){
+    public SQLServerOutputVisitor(Appendable appender, boolean parameterized) {
         super(appender, parameterized);
         this.dbType = JdbcConstants.SQL_SERVER;
     }
@@ -182,13 +158,13 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
             x.getTop().accept(this);
             print(' ');
         }
-        
+
         print0(ucase ? "INTO " : "into ");
-        
+
         x.getTableSource().accept(this);
 
         printInsertColumns(x.getColumns());
-        
+
         if (x.getOutput() != null) {
             println();
             x.getOutput().setParent(x);
@@ -332,13 +308,13 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
     @Override
     public boolean visit(SQLServerExecStatement x) {
         print0(ucase ? "EXEC " : "exec ");
-        
+
         SQLName returnStatus = x.getReturnStatus();
         if (returnStatus != null) {
             returnStatus.accept(this);
             print0(" = ");
         }
-        
+
         SQLName moduleName = x.getModuleName();
         if (moduleName != null) {
             moduleName.accept(this);
@@ -393,7 +369,7 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
             SQLExpr value = item.getValue();
             if (value instanceof SQLIdentifierExpr
                     && (((SQLIdentifierExpr) value).nameHashCode64() == FnvHash.Constants.ON
-                        || ((SQLIdentifierExpr) value).nameHashCode64() == FnvHash.Constants.OFF)) {
+                    || ((SQLIdentifierExpr) value).nameHashCode64() == FnvHash.Constants.OFF)) {
                 print(' ');
             } else {
                 print0(" = ");
@@ -475,14 +451,14 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
             x.getOn().accept(this);
         }
     }
-    
+
     public boolean visit(SQLSelect x) {
         super.visit(x);
         if (x.isForBrowse()) {
             println();
             print0(ucase ? "FOR BROWSE" : "for browse");
         }
-        
+
         if (x.getForXmlOptionsSize() > 0) {
             println();
             print0(ucase ? "FOR XML " : "for xml ");
@@ -493,19 +469,19 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
                 }
             }
         }
-        
+
         if (x.getXmlPath() != null) {
             println();
             print0(ucase ? "FOR XML " : "for xml ");
             x.getXmlPath().accept(this);
         }
-        
+
         if (x.getOffset() != null) {
             println();
             print0(ucase ? "OFFSET " : "offset ");
             x.getOffset().accept(this);
             print0(ucase ? " ROWS" : " rows");
-            
+
             if (x.getRowCount() != null) {
                 print0(ucase ? " FETCH NEXT " : " fetch next ");
                 x.getRowCount().accept(this);
@@ -550,13 +526,13 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
                 x.getName().accept(this);
             }
         }
-        
+
         return false;
     }
 
     @Override
     public void endVisit(SQLServerRollbackStatement x) {
-        
+
     }
 
     @Override
@@ -569,40 +545,40 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
         } else if (x.getTime() != null) {
             print0(ucase ? " TIME " : " time ");
             x.getTime().accept(this);
-        } if (x.getStatement() != null) {
+        }
+        if (x.getStatement() != null) {
             print0(ucase ? " DELAY " : " delay ");
             x.getStatement().accept(this);
         }
-        
-        if(x.getTimeout() != null) {
+
+        if (x.getTimeout() != null) {
             print0(ucase ? " ,TIMEOUT " : " ,timeout ");
             x.getTimeout().accept(this);
         }
-        
+
         return false;
     }
 
     @Override
     public void endVisit(SQLServerWaitForStatement x) {
-        
+
     }
 
-	@Override
-	public boolean visit(SQLServerParameter x) {
-		// TODO Auto-generated method stub
-		x.getExpr().accept(this);
-		if(x.getType())
-		{
-			print0(ucase ? " OUT" : " out");
-		}
-		return false;
-	}
+    @Override
+    public boolean visit(SQLServerParameter x) {
+        // TODO Auto-generated method stub
+        x.getExpr().accept(this);
+        if (x.getType()) {
+            print0(ucase ? " OUT" : " out");
+        }
+        return false;
+    }
 
-	@Override
-	public void endVisit(SQLServerParameter x) {
+    @Override
+    public void endVisit(SQLServerParameter x) {
 
-		
-	}
+
+    }
 
     @Override
     public boolean visit(SQLStartTransactionStatement x) {
@@ -621,10 +597,104 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
         return false;
     }
 
-    @Override
-    public boolean visit(SQLCreateUserStatement x) {
+    public boolean visit(SQLServerCreateUserStatement x) {
         print0(ucase ? "CREATE USER " : "create user ");
         x.getUser().accept(this);
+        print0(ucase ? " FOR LOGIN " : " for login ");
+
+        SQLExpr login = x.getLogin();
+
+        if (login instanceof SQLIdentifierExpr) {
+            print('\'');
+            login.accept(this);
+            print('\'');
+        } else {
+            login.accept(this);
+        }
+
+        return false;
+    }
+
+
+    public void endVisit(SQLServerCreateUserStatement x) {
+
+    }
+
+    public boolean visit(SQLCreateFunctionStatement x) {
+        boolean create = x.isCreate();
+        if (!create) {
+            print0(ucase ? "FUNCTION " : "function ");
+        } else if (x.isOrReplace()) {
+            print0(ucase ? "CREATE OR REPLACE FUNCTION " : "create or replace function ");
+        } else {
+            print0(ucase ? "CREATE FUNCTION " : "create function ");
+        }
+        x.getName().accept(this);
+
+        int paramSize = x.getParameters().size();
+
+        if (paramSize > 0) {
+            print0(" (");
+            this.indentCount++;
+            println();
+
+            for (int i = 0; i < paramSize; ++i) {
+                if (i != 0) {
+                    print0(", ");
+                    println();
+                }
+                SQLParameter param = x.getParameters().get(i);
+                param.accept(this);
+            }
+
+            this.indentCount--;
+            println();
+            print(')');
+        }
+        println();
+        print(ucase ? "RETURNS " : "returns ");
+        x.getReturnDataType().accept(this);
+
+        if (x.isPipelined()) {
+            print(ucase ? "PIPELINED " : "pipelined ");
+        }
+
+        if (x.isDeterministic()) {
+            print(ucase ? "DETERMINISTIC " : "deterministic ");
+        }
+
+        SQLName authid = x.getAuthid();
+        if (authid != null) {
+            print(ucase ? " AUTHID " : " authid ");
+            authid.accept(this);
+        }
+
+        SQLStatement block = x.getBlock();
+        String wrappedSource = x.getWrappedSource();
+        if (wrappedSource != null) {
+            print0(ucase ? " WRAPPED " : " wrapped ");
+            print0(wrappedSource);
+        } else {
+            if (block != null && create) {
+                println();
+                print("AS");
+                println();
+            }
+        }
+        if (block != null) {
+            block.accept(this);
+        }
+        return false;
+    }
+
+    public void endVisit(SQLCreateFunctionStatement x) {
+
+    }
+
+
+    public boolean visit(SQLServerCreateLoginStatement x) {
+        print0(ucase ? "CREATE LOGIN " : "create login ");
+        x.getLogin().accept(this);
         print0(ucase ? " WITH PASSWORD = " : " with password = ");
 
         SQLExpr passoword = x.getPassword();
@@ -639,6 +709,11 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
 
         return false;
     }
+
+    public void endVisit(SQLServerCreateLoginStatement x) {
+
+    }
+
 
     public boolean visit(SQLSequenceExpr x) {
         SQLSequenceExpr.Function function = x.getFunction();
@@ -659,5 +734,85 @@ public class SQLServerOutputVisitor extends SQLASTOutputVisitor implements SQLSe
         print0(ucase ? "ADD " : "add ");
         printAndAccept(x.getColumns(), ", ");
         return false;
+    }
+
+
+    @Override
+    public boolean visit(SQLServerDropLoginStatement x) {
+        print0(ucase ? "DROP LOGIN " : "drop login ");
+        printAndAccept(x.getLogin(), ", ");
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLServerDropLoginStatement x) {
+
+    }
+
+
+    @Override
+    public boolean visit(SQLServerCreateSchemaStatement x) {
+        print0(ucase ? "CREATE SCHEMA " : "create schema ");
+        x.getSchema().accept(this);
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLServerCreateSchemaStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(SQLCreateProcedureStatement x) {
+        boolean create = x.isCreate();
+        if (!create) {
+            print0(ucase ? "PROCEDURE " : "procedure ");
+        } else if (x.isOrReplace()) {
+            print0(ucase ? "CREATE OR REPLACE PROCEDURE " : "create or replace procedure ");
+        } else {
+            print0(ucase ? "CREATE PROCEDURE " : "create procedure ");
+        }
+        x.getName().accept(this);
+
+        int paramSize = x.getParameters().size();
+
+        if (paramSize > 0) {
+            this.indentCount++;
+            println();
+
+            for (int i = 0; i < paramSize; ++i) {
+                if (i != 0) {
+                    print0(", ");
+                    println();
+                }
+                SQLParameter param = x.getParameters().get(i);
+                param.accept(this);
+            }
+
+            this.indentCount--;
+            println();
+        }
+
+        SQLStatement block = x.getBlock();
+        String wrappedSource = x.getWrappedSource();
+        if (wrappedSource != null) {
+            print0(ucase ? " WRAPPED " : " wrapped ");
+            print0(wrappedSource);
+        } else {
+            if (block != null && create) {
+                print("AS");
+                println();
+            }
+        }
+        if (block != null) {
+            block.accept(this);
+        }
+
+        return false;
+    }
+
+    @Override
+    public void endVisit(SQLCreateProcedureStatement x) {
+
     }
 }

@@ -26,7 +26,7 @@ import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
 /**
  * 
- * MySql cursor close statement
+ * MySql cursor close stmt
  * @author zz [455910092@qq.com]
  */
 public class SQLCloseStatement extends SQLStatementImpl{

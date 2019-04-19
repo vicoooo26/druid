@@ -34,7 +34,7 @@ public class MySqlDeclareConditionStatement extends MySqlStatementImpl{
 	
 	//condition_name
 	private String conditionName; 
-	//sp statement
+	//sp stmt
 	private ConditionValue conditionValue;
 	
 	public String getConditionName() {

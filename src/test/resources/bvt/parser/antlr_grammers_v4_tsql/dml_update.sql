@@ -73,7 +73,7 @@ FROM dbo.Table2;
 
 USE tempdb;
 GO
--- UPDATE statement with CTE references that are correctly matched.
+-- UPDATE stmt with CTE references that are correctly matched.
 DECLARE @x TABLE (ID int, Value int);
 DECLARE @y TABLE (ID int, Value int);
 INSERT @x VALUES (1, 10), (2, 20);
@@ -88,7 +88,7 @@ SELECT * FROM @x;
 GO
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using a simple UPDATE statement
+-- Using a simple UPDATE stmt
 
 USE AdventureWorks2012;
 GO
@@ -266,13 +266,13 @@ SET NewVacationHours = e.VacationHours + 20,
 FROM HumanResources.Employee AS e 
 WHERE e.BusinessEntityID = EmpID;
 
--- Display the results of the UPDATE statement.
+-- Display the results of the UPDATE stmt.
 SELECT EmpID, NewVacationHours, ModifiedDate FROM @MyTableVar
 ORDER BY EmpID;
 GO
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using the UPDATE statement with information from another table
+-- Using the UPDATE stmt with information from another table
 
 USE AdventureWorks2012;
 GO

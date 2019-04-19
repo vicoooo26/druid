@@ -15,17 +15,14 @@
  */
 package com.alibaba.druid.sql.dialect.sqlserver.visitor;
 
+import com.alibaba.druid.sql.ast.statement.SQLCreateFunctionStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateProcedureStatement;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerOutput;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerTop;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.expr.SQLServerObjectReferenceExpr;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerExecStatement;
+import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.*;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerExecStatement.SQLServerParameter;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerInsertStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerRollbackStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerSetTransactionIsolationLevelStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerUpdateStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerWaitForStatement;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
 public interface SQLServerASTVisitor extends SQLASTVisitor {
@@ -73,5 +70,30 @@ public interface SQLServerASTVisitor extends SQLASTVisitor {
     boolean visit(SQLServerParameter x);
 
     void endVisit(SQLServerParameter x);
+
+    boolean visit(SQLServerCreateUserStatement x);
+
+    void endVisit(SQLServerCreateUserStatement x);
+
+    boolean visit(SQLServerCreateLoginStatement x);
+
+    void endVisit(SQLServerCreateLoginStatement x);
+
+    boolean visit(SQLServerDropLoginStatement x);
+
+    void endVisit(SQLServerDropLoginStatement x);
+
+    boolean visit(SQLServerCreateSchemaStatement x);
+
+    void endVisit(SQLServerCreateSchemaStatement x);
+
+    boolean visit(SQLCreateProcedureStatement x);
+
+    void endVisit(SQLCreateProcedureStatement x);
+
+    boolean visit(SQLCreateFunctionStatement x);
+
+    void endVisit(SQLCreateFunctionStatement x);
+
 
 }

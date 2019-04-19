@@ -153,7 +153,7 @@ SELECT COUNT(*) AS [Rows in Table] FROM Sales.ShoppingCartItem WHERE ShoppingCar
 GO
 
 --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- Using OUTPUT with <from_table_name> in a DELETE statement
+-- Using OUTPUT with <from_table_name> in a DELETE stmt
 
 DECLARE @MyTableVar table (
     ProductID int NOT NULL, 
