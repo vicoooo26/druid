@@ -4,6 +4,7 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.statement.SQLCreateStatement;
 import com.alibaba.druid.sql.dialect.teradata.visitor.TeradataASTVisitor;
+import com.alibaba.druid.util.JdbcConstants;
 
 public class TeradataCreateDatabaseStatement extends TeradataStatementImpl implements SQLCreateStatement {
     private SQLName name;

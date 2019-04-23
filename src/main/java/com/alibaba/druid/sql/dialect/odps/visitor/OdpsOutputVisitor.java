@@ -84,7 +84,7 @@ public class OdpsOutputVisitor extends SQLASTOutputVisitor implements OdpsASTVis
     }
 
     public boolean visit(OdpsCreateTableStatement x) {
-        if (x.isIfNotExiists()) {
+        if (x.isIfNotExists()) {
             print0(ucase ? "CREATE TABLE IF NOT EXISTS " : "create table if not exists ");
         } else {
             print0(ucase ? "CREATE TABLE " : "create table ");

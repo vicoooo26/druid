@@ -3144,7 +3144,7 @@ public class MySqlStatementParser extends SQLStatementParser {
             for (;;) {
 
                 if (lexer.token() == Token.CONSTRAINT) {
-                    SQLTableConstraint constraint = (SQLTableConstraint) this.exprParser.parseConstaint();
+                    SQLTableConstraint constraint = (SQLTableConstraint) this.exprParser.parseConstraint();
                     createView.addColumn(constraint);
                 } else {
                     SQLColumnDefinition column = new SQLColumnDefinition();

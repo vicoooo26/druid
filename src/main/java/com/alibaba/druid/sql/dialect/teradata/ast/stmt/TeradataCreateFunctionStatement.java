@@ -3,12 +3,17 @@ package com.alibaba.druid.sql.dialect.teradata.ast.stmt;
 import com.alibaba.druid.sql.ast.statement.SQLCreateFunctionStatement;
 import com.alibaba.druid.sql.dialect.teradata.visitor.TeradataASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+import com.alibaba.druid.util.JdbcConstants;
 
 public class TeradataCreateFunctionStatement extends SQLCreateFunctionStatement {
     private boolean withData;
     private boolean withNoData;
     private boolean onCommit;
     private boolean preserveRows;
+
+    public TeradataCreateFunctionStatement() {
+        this.dbType = JdbcConstants.TERADATA;
+    }
 
     public boolean isWithData() {
         return withData;

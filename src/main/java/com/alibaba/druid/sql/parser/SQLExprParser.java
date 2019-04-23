@@ -3135,7 +3135,7 @@ public class SQLExprParser extends SQLParser {
         }
     }
 
-    public SQLConstraint parseConstaint() {
+    public SQLConstraint parseConstraint() {
         SQLName name = null;
 
         if (lexer.token == Token.CONSTRAINT) {

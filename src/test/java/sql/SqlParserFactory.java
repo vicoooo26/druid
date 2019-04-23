@@ -2,11 +2,9 @@ package sql;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import sql.druid.DruidSqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sql.druid.DruidSqlParser;
 
 import java.util.List;
 import java.util.Map;
@@ -57,7 +55,7 @@ public class SqlParserFactory {
         // done, lineage visitor not done
 //        sqlServerLineage();
 
-//        teradataLineage();
+        teradataLineage();
     }
 
 
@@ -389,8 +387,6 @@ public class SqlParserFactory {
 
     protected static void teradataLineage() {
         String str1 = "create database test2 as perm=200000000,spool=100000000;";
-
-        String teradata1 = SQLUtils.format(str1, "teradata");
         String str2 = "select * from dbc.dbcinfo;";
         String str3 = "create multiset table test1.table1(id integer, name varchar(30), age integer, address varchar(30)) unique primary index(id);\n";
         String str4 = "create multiset table test1.table2(id decimal(10,3), name varchar(30), age integer, address varchar(30)) unique primary index(id);\n";
@@ -408,7 +404,6 @@ public class SqlParserFactory {
         String str16 = "create view test1.view1 as select id,name,age,address from test1.table1;\n";
         String str17 = "select * from test1.view1;\n";
         String str18 = "GRANT CREATE PROCEDURE ON test1 TO test1;";
-
         String str19 = "CREATE PROCEDURE test1.insert_table1(\n" +
                 "IN in_id INTEGER,\n" +
                 "IN in_name VARCHAR(30),\n" +
@@ -463,29 +458,23 @@ public class SqlParserFactory {
                 ");\n" +
                 "END;\n";
 
-        String str22 = "DROP PROCEDURE test1.insert_table1;\n" +
-                "\n" +
-                "CALL test1.insert_table1(5,'jame',22,'suzhou');\n" +
-                "\n" +
-                "CALL test1.insert_table2(6,'hack',22);\n" +
-                "\n" +
-                "select * from test1.view1;\n" +
-                "\n" +
-                "GRANT CREATE FUNCTION ON test1 TO test1;\n" +
-                "\n";
-        String str23 =
-                "REPLACE FUNCTION test1.timestampdiff_char19(endtime VARCHAR(19),starttime VARCHAR(19))\n" +
-                        "RETURNS INT\n" +
-                        "LANGUAGE SQL\n" +
-                        "CONTAINS SQL\n" +
-                        "DETERMINISTIC\n" +
-                        "SQL SECURITY DEFINER\n" +
-                        "COLLATION INVOKER\n" +
-                        "INLINE TYPE 1\n" +
-                        "RETURN ( CAST(CAST(endtime as TIMESTAMP(0)) AS DATE FORMAT 'YYYYMMDD')-CAST(CAST(starttime as TIMESTAMP(0)) AS DATE FORMAT 'YYYYMMDD'))*24*3600\n" +
-                        "+EXTRACT(HOUR FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND))*3600\n" +
-                        "+EXTRACT(MINUTE FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND))*60\n" +
-                        "+EXTRACT(SECOND FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND));\n";
+        String str22 = "DROP PROCEDURE test1.insert_table1;\n";
+        String str22_2 = "CALL test1.insert_table1(5,'jame',22,'suzhou');\n";
+        String str22_3 = "CALL test1.insert_table2(6,'hack',22);\n";
+        String str22_4 = "select * from test1.view1;\n";
+        String str22_5 = "GRANT CREATE FUNCTION ON test1 TO test1;\n";
+        String str23 = "REPLACE FUNCTION test1.timestampdiff_char19(endtime VARCHAR(19),starttime VARCHAR(19))\n" +
+                "RETURNS INT\n" +
+                "LANGUAGE SQL\n" +
+                "CONTAINS SQL\n" +
+                "DETERMINISTIC\n" +
+                "SQL SECURITY DEFINER\n" +
+                "COLLATION INVOKER\n" +
+                "INLINE TYPE 1\n" +
+                "RETURN ( CAST(CAST(endtime as TIMESTAMP(0)) AS DATE FORMAT 'YYYYMMDD')-CAST(CAST(starttime as TIMESTAMP(0)) AS DATE FORMAT 'YYYYMMDD'))*24*3600\n" +
+                "+EXTRACT(HOUR FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND))*3600\n" +
+                "+EXTRACT(MINUTE FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND))*60\n" +
+                "+EXTRACT(SECOND FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND));\n";
 
         String str24 = "select id,name,age,address,test1.timestampdiff_char19('2019-02-14 23:23:23', '2019-01-01 11:11:11') as timestamp_diff_seconds from test1.table1;\n";
         String str25 = "select * from dbc.allrights where username='test1'; \n";
@@ -516,5 +505,136 @@ public class SqlParserFactory {
         String str50 = "select * from dbc.columnstatsv where database='test1';\n";
         String str51 = "select * from test1.table1 sample 20;\n";
         String str52 = "alter table test1.table1 add address1 varchar(30);\n";
+
+//        System.out.println(SQLUtils.format(str1, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str2, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str3, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str4, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str5, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str6, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str7, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str8, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str9, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str10, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str11, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str12, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str13, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str14, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str15, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str16, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str17, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str18, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str19, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str20, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str21, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str22, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str22_2, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str22_3, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str22_4, "teradata"));
+//        System.out.println("\n");
+
+
+        // TODO
+//        System.out.println(SQLUtils.format(str22_5, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str23, "teradata"));
+//        System.out.println("\n");
+
+
+
+//        System.out.println(SQLUtils.format(str24, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str25, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str26, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str27, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str28, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str29, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str30, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str31, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str32, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str33, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str34, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str35, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str36, "teradata"));
+//        System.out.println("\n");
+
+
+        // TODO
+//        System.out.println(SQLUtils.format(str37, "teradata"));
+//        System.out.println("\n");
+
+
+//        System.out.println(SQLUtils.format(str38, "teradata"));
+//        System.out.println("\n");
+
+
+        // TODO
+//        System.out.println(SQLUtils.format(str39, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str40, "teradata"));
+//        System.out.println("\n");
+
+
+
+//        System.out.println(SQLUtils.format(str41, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str42, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str43, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str44, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str45, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str46, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str47, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str48, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str49, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str50, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str51, "teradata"));
+//        System.out.println("\n");
+//        System.out.println(SQLUtils.format(str52, "teradata"));
+//        System.out.println("\n");
+
     }
 }

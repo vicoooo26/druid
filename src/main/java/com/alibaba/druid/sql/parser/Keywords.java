@@ -31,9 +31,9 @@ public class Keywords {
     private long[] hashArray;
     private Token[] tokens;
 
-    public final static Keywords     DEFAULT_KEYWORDS;
+    public final static Keywords DEFAULT_KEYWORDS;
 
-    public final static Keywords     SQLITE_KEYWORDS;
+    public final static Keywords SQLITE_KEYWORDS;
 
     static {
         Map<String, Token> map = new HashMap<String, Token>();
@@ -56,6 +56,7 @@ public class Keywords {
 
         map.put("CHECK", Token.CHECK);
         map.put("CONSTRAINT", Token.CONSTRAINT);
+        map.put("COLLECT", Token.COLLECT);
         map.put("CREATE", Token.CREATE);
         map.put("DATABASE", Token.DATABASE);
         map.put("DEFAULT", Token.DEFAULT);
@@ -82,6 +83,7 @@ public class Keywords {
         map.put("FULL", Token.FULL);
         map.put("GROUP", Token.GROUP);
         map.put("HAVING", Token.HAVING);
+        map.put("HELP", Token.HELP);
         map.put("IN", Token.IN);
 
         map.put("INDEX", Token.INDEX);
@@ -110,11 +112,14 @@ public class Keywords {
         map.put("PRIMARY", Token.PRIMARY);
         map.put("REFERENCES", Token.REFERENCES);
         map.put("RIGHT", Token.RIGHT);
+        map.put("SAMPLE", Token.SAMPLE);
         map.put("SCHEMA", Token.SCHEMA);
         map.put("SELECT", Token.SELECT);
 
         map.put("SET", Token.SET);
         map.put("SOME", Token.SOME);
+        map.put("STATISTICS", Token.STATISTICS);
+
         map.put("TABLE", Token.TABLE);
         map.put("THEN", Token.THEN);
         map.put("TRUNCATE", Token.TRUNCATE);
@@ -143,7 +148,7 @@ public class Keywords {
         map.put("WITH", Token.WITH);
         map.put("GRANT", Token.GRANT);
         map.put("REVOKE", Token.REVOKE);
-        
+
         // MySql procedure: add by zz
         map.put("WHILE", Token.WHILE);
         map.put("DO", Token.DO);
@@ -175,7 +180,7 @@ public class Keywords {
         return this.keywords.containsValue(token);
     }
 
-    public Keywords(Map<String, Token> keywords){
+    public Keywords(Map<String, Token> keywords) {
         this.keywords = keywords;
 
         this.hashArray = new long[keywords.size()];
@@ -193,13 +198,13 @@ public class Keywords {
         }
     }
 
-public Token getKeyword(long hash) {
-    int index = Arrays.binarySearch(hashArray, hash);
-    if (index < 0) {
-        return null;
+    public Token getKeyword(long hash) {
+        int index = Arrays.binarySearch(hashArray, hash);
+        if (index < 0) {
+            return null;
+        }
+        return tokens[index];
     }
-    return tokens[index];
-}
 
     public Token getKeyword(String key) {
         long k = Utils.fnv_64_lower(key);

@@ -75,7 +75,7 @@ public class HiveCreateTableParser extends SQLCreateTableParser {
             accept(Token.NOT);
             accept(Token.EXISTS);
 
-            stmt.setIfNotExiists(true);
+            stmt.setIfNotExists(true);
         }
 
         stmt.setName(this.exprParser.name());
@@ -98,7 +98,7 @@ public class HiveCreateTableParser extends SQLCreateTableParser {
                         || token == Token.CHECK //
                         || token == Token.CONSTRAINT
                         || token == Token.FOREIGN) {
-                    SQLConstraint constraint = this.exprParser.parseConstaint();
+                    SQLConstraint constraint = this.exprParser.parseConstraint();
                     constraint.setParent(stmt);
                     stmt.getTableElementList().add((SQLTableElement) constraint);
                 } else if (token == Token.TABLESPACE) {

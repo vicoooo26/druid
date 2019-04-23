@@ -1,14 +1,21 @@
 package com.alibaba.druid.sql.dialect.teradata.parser;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLName;
+import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.SQLSetQuantifier;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
+import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
+import com.alibaba.druid.sql.ast.statement.SQLWithSubqueryClause;
+import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataSelect;
 import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataSelectQueryBlock;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.SQLSelectParser;
 import com.alibaba.druid.sql.parser.Token;
+import com.alibaba.druid.util.FnvHash;
 
 public class TeradataSelectParser extends SQLSelectParser {
     public TeradataSelectParser(SQLExprParser exprParser) {
@@ -17,6 +24,51 @@ public class TeradataSelectParser extends SQLSelectParser {
 
     public TeradataSelectParser(String sql) {
         this(new TeradataExprParser(sql));
+    }
+
+    public TeradataSelect select() {
+        TeradataSelect select = new TeradataSelect();
+
+        if (lexer.token() == Token.WITH) {
+            SQLWithSubqueryClause with = this.parseWith();
+            select.setWithSubQuery(with);
+        }
+
+        SQLSelectQuery query = query();
+        select.setQuery(query);
+
+        SQLOrderBy orderBy = this.parseOrderBy();
+
+        if (query instanceof SQLSelectQueryBlock) {
+            SQLSelectQueryBlock queryBlock = (SQLSelectQueryBlock) query;
+
+            if (queryBlock.getOrderBy() == null) {
+                queryBlock.setOrderBy(orderBy);
+            } else {
+                select.setOrderBy(orderBy);
+            }
+
+            if (orderBy != null) {
+                parseFetchClause(queryBlock);
+            }
+        } else {
+            select.setOrderBy(orderBy);
+        }
+
+        while (lexer.token() == Token.HINT) {
+            this.exprParser.parseHints(select.getHints());
+        }
+
+        if (lexer.token() == Token.SAMPLE) {
+            lexer.nextToken();
+            select.setSample(this.exprParser.expr());
+        }
+
+        if (lexer.token() == Token.TOP) {
+            lexer.nextToken();
+            select.setTop(this.exprParser.expr());
+        }
+        return select;
     }
 
     public SQLSelectQuery query() {

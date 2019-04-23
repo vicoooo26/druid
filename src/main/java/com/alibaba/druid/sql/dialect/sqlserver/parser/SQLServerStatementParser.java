@@ -18,17 +18,12 @@ package com.alibaba.druid.sql.dialect.sqlserver.parser;
 import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.ast.expr.*;
 import com.alibaba.druid.sql.ast.statement.*;
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateUserStatement;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerOutput;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerTop;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.*;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.stmt.SQLServerExecStatement.SQLServerParameter;
 import com.alibaba.druid.sql.parser.*;
 import com.alibaba.druid.util.FnvHash;
-import com.sun.org.apache.regexp.internal.RE;
-import org.apache.log4j.net.SMTPAppender;
-import org.codehaus.janino.IClass;
-import org.hibernate.boot.jaxb.hbm.spi.PluralAttributeInfoPrimitiveArrayAdapter;
 
 import java.util.Collection;
 import java.util.List;
@@ -331,7 +326,7 @@ public class SQLServerStatementParser extends SQLStatementParser {
                                 || lexer.token() == Token.UNIQUE //
                                 || lexer.token() == Token.CHECK //
                                 || lexer.token() == Token.CONSTRAINT) {
-                            SQLConstraint constraint = this.exprParser.parseConstaint();
+                            SQLConstraint constraint = this.exprParser.parseConstraint();
                             constraint.setParent(item);
                             item.getTableElementList().add((SQLTableElement) constraint);
                         } else if (lexer.token() == Token.TABLESPACE) {

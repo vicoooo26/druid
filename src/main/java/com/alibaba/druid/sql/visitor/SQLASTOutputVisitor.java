@@ -2797,7 +2797,7 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter implements Paramet
         }
         print0(ucase ? "TABLE " : "table ");
 
-        if (x.isIfNotExiists()) {
+        if (x.isIfNotExists()) {
             print0(ucase ? "IF NOT EXISTS " : "if not exists ");
         }
 

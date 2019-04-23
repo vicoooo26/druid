@@ -84,6 +84,7 @@ import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement.ValuesClause;
 import com.alibaba.druid.sql.ast.statement.SQLMergeStatement.MergeInsertClause;
 import com.alibaba.druid.sql.ast.statement.SQLMergeStatement.MergeUpdateClause;
+
 // 用于
 public class SQLASTVisitorAdapter implements SQLASTVisitor {
     protected int features;
@@ -692,11 +693,11 @@ public class SQLASTVisitorAdapter implements SQLASTVisitor {
     public boolean visit(SQLOver x) {
         return true;
     }
-    
+
     @Override
     public void endVisit(SQLKeep x) {
     }
-    
+
     @Override
     public boolean visit(SQLKeep x) {
         return true;
@@ -1561,15 +1562,15 @@ public class SQLASTVisitorAdapter implements SQLASTVisitor {
     public void endVisit(SQLAlterTableRepairPartition x) {
 
     }
-    
+
     @Override
     public boolean visit(SQLSequenceExpr x) {
         return true;
     }
-    
+
     @Override
     public void endVisit(SQLSequenceExpr x) {
-        
+
     }
 
     @Override
@@ -1579,7 +1580,7 @@ public class SQLASTVisitorAdapter implements SQLASTVisitor {
 
     @Override
     public void endVisit(SQLMergeStatement x) {
-        
+
     }
 
     @Override
@@ -1589,7 +1590,7 @@ public class SQLASTVisitorAdapter implements SQLASTVisitor {
 
     @Override
     public void endVisit(MergeUpdateClause x) {
-        
+
     }
 
     @Override
@@ -1599,7 +1600,7 @@ public class SQLASTVisitorAdapter implements SQLASTVisitor {
 
     @Override
     public void endVisit(MergeInsertClause x) {
-        
+
     }
 
     @Override
@@ -1614,7 +1615,7 @@ public class SQLASTVisitorAdapter implements SQLASTVisitor {
 
     @Override
     public boolean visit(SQLNullConstraint x) {
-	return true;
+        return true;
     }
 
     @Override

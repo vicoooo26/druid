@@ -69,7 +69,7 @@ public class HiveOutputVisitor extends SQLASTOutputVisitor implements HiveASTVis
         }
         print0(ucase ? "TABLE " : "table ");
 
-        if (x.isIfNotExiists()) {
+        if (x.isIfNotExists()) {
             print0(ucase ? "IF NOT EXISTS " : "if not exists ");
         }
 

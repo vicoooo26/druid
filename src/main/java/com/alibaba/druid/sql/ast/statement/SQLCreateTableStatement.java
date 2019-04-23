@@ -44,45 +44,45 @@ import com.alibaba.druid.util.lang.Consumer;
 
 public class SQLCreateTableStatement extends SQLStatementImpl implements SQLDDLStatement, SQLCreateStatement {
 
-    protected boolean                          ifNotExiists = false;
-    protected Type                             type;
-    protected SQLExprTableSource               tableSource;
+    protected boolean ifNotExists = false;
+    protected Type type;
+    protected SQLExprTableSource tableSource;
 
-    protected List<SQLTableElement>            tableElementList = new ArrayList<SQLTableElement>();
+    protected List<SQLTableElement> tableElementList = new ArrayList<SQLTableElement>();
 
     // for postgresql
-    protected SQLExprTableSource               inherits;
+    protected SQLExprTableSource inherits;
 
-    protected SQLSelect                        select;
+    protected SQLSelect select;
 
-    protected SQLExpr                          comment;
+    protected SQLExpr comment;
 
-    protected SQLExprTableSource               like;
+    protected SQLExprTableSource like;
 
-    protected Boolean                          compress;
-    protected Boolean                          logging;
+    protected Boolean compress;
+    protected Boolean logging;
 
-    protected SQLName                          tablespace;
-    protected SQLPartitionBy                   partitioning;
-    protected SQLName                          storedAs;
+    protected SQLName tablespace;
+    protected SQLPartitionBy partitioning;
+    protected SQLName storedAs;
 
-    protected boolean                          onCommitPreserveRows;
-    protected boolean                          onCommitDeleteRows;
+    protected boolean onCommitPreserveRows;
+    protected boolean onCommitDeleteRows;
 
     // for hive & odps
-    protected SQLExternalRecordFormat          rowFormat;
-    protected final List<SQLColumnDefinition>  partitionColumns = new ArrayList<SQLColumnDefinition>(2);
-    protected final List<SQLName>              clusteredBy = new ArrayList<SQLName>();
+    protected SQLExternalRecordFormat rowFormat;
+    protected final List<SQLColumnDefinition> partitionColumns = new ArrayList<SQLColumnDefinition>(2);
+    protected final List<SQLName> clusteredBy = new ArrayList<SQLName>();
     protected final List<SQLSelectOrderByItem> sortedBy = new ArrayList<SQLSelectOrderByItem>();
-    protected int                              buckets;
+    protected int buckets;
 
     protected Map<String, SQLObject> tableOptions = new LinkedHashMap<String, SQLObject>();
 
-    public SQLCreateTableStatement(){
+    public SQLCreateTableStatement() {
 
     }
 
-    public SQLCreateTableStatement(String dbType){
+    public SQLCreateTableStatement(String dbType) {
         super(dbType);
     }
 
@@ -153,19 +153,19 @@ public class SQLCreateTableStatement extends SQLStatementImpl implements SQLDDLS
     }
 
     public static enum Type {
-                             GLOBAL_TEMPORARY, LOCAL_TEMPORARY
+        GLOBAL_TEMPORARY, LOCAL_TEMPORARY, SET, MULTISET
     }
 
     public List<SQLTableElement> getTableElementList() {
         return tableElementList;
     }
 
-    public boolean isIfNotExiists() {
-        return ifNotExiists;
+    public boolean isIfNotExists() {
+        return ifNotExists;
     }
 
-    public void setIfNotExiists(boolean ifNotExiists) {
-        this.ifNotExiists = ifNotExiists;
+    public void setIfNotExists(boolean ifNotExists) {
+        this.ifNotExists = ifNotExists;
     }
 
     public SQLExprTableSource getInherits() {
@@ -278,7 +278,7 @@ public class SQLCreateTableStatement extends SQLStatementImpl implements SQLDDLS
         if (attributes == null) {
             attributes = new HashMap<String, Object>(1);
         }
-        
+
         List<String> attrComments = (List<String>) attributes.get("format.body_before_comment");
         if (attrComments == null) {
             attributes.put("format.body_before_comment", comments);
@@ -286,22 +286,22 @@ public class SQLCreateTableStatement extends SQLStatementImpl implements SQLDDLS
             attrComments.addAll(comments);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public List<String> getBodyBeforeCommentsDirect() {
         if (attributes == null) {
             return null;
         }
-        
+
         return (List<String>) attributes.get("format.body_before_comment");
     }
-    
+
     public boolean hasBodyBeforeComment() {
         List<String> comments = getBodyBeforeCommentsDirect();
         if (comments == null) {
             return false;
         }
-        
+
         return !comments.isEmpty();
     }
 
@@ -747,7 +747,7 @@ public class SQLCreateTableStatement extends SQLStatementImpl implements SQLDDLS
 
             SQLColumnDefinition column
                     = this.findColumn(
-                        propertyExpr.nameHashCode64());
+                    propertyExpr.nameHashCode64());
 
             if (column != null) {
                 column.setComment(comment.clone());
@@ -962,7 +962,6 @@ public class SQLCreateTableStatement extends SQLStatementImpl implements SQLDDLS
         }
 
 
-
         return true;
     }
 
@@ -1014,7 +1013,7 @@ public class SQLCreateTableStatement extends SQLStatementImpl implements SQLDDLS
     }
 
     public void cloneTo(SQLCreateTableStatement x) {
-        x.ifNotExiists = ifNotExiists;
+        x.ifNotExists = ifNotExists;
         x.type = type;
         if (tableSource != null) {
             x.setTableSource(tableSource.clone());

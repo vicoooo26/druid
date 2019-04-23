@@ -27,6 +27,18 @@ public class TeradataLexer extends Lexer {
         map.put("MULTISET", Token.MULTISET);
 
         map.put("FORMAT", Token.FORMAT);
+        map.put("EXTRACT", Token.EXTRACT);
+
+        map.put("QUALIFY", Token.QUALIFY);
+
+        map.put("MOD", Token.MOD);
+
+        map.put("USING", Token.USING);
+
+        map.put("DEL", Token.DEL);
+
+        map.put("MATCHED", Token.MATCHED);
+        map.put("MERGE", Token.MERGE);
 
         DEFAULT_TD_KEYWORDS = new Keywords(map);
     }

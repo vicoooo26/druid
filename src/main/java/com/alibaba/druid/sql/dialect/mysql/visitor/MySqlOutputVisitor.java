@@ -596,7 +596,7 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
             print0(ucase ? "TABLE " : "table ");
         }
 
-        if (x.isIfNotExiists()) {
+        if (x.isIfNotExists()) {
             print0(ucase ? "IF NOT EXISTS " : "if not exists ");
         }
 
