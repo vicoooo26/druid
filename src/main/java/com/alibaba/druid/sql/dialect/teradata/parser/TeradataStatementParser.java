@@ -4,10 +4,14 @@ import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.ast.expr.*;
 import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.teradata.ast.stmt.*;
-import com.alibaba.druid.sql.parser.*;
+import com.alibaba.druid.sql.parser.Lexer;
+import com.alibaba.druid.sql.parser.ParserException;
+import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.alibaba.druid.sql.parser.Token;
 import com.alibaba.druid.util.FnvHash;
 import com.alibaba.druid.util.JdbcConstants;
 
+import java.lang.invoke.LambdaConversionException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,22 +157,167 @@ public class TeradataStatementParser extends SQLStatementParser {
         throw new ParserException("TODO " + lexer.info());
     }
 
+    public SQLStatement parseReturn() {
+        if (lexer.token() == Token.RETURN
+                || lexer.identifierEquals("RETURN")) {
+            lexer.nextToken();
+        }
+
+        TeradataReturnStatement stmt = new TeradataReturnStatement();
+
+        int pos = lexer.pos();
+        String text = lexer.text.trim();
+        StringBuilder returnBlock = new StringBuilder();
+        if (text.endsWith(";")) {
+            returnBlock.append(text.substring(pos, text.length() - 1));
+        } else {
+            returnBlock.append(text.substring(pos));
+        }
+        stmt.setReturnBlock(returnBlock.toString());
+        for (; ; ) {
+            if (lexer.token() != Token.SEMI) {
+                lexer.nextToken();
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        if (lexer.token() == Token.SEMI) {
+            lexer.nextToken();
+            stmt.setAfterSemi(true);
+        }
+
+        return stmt;
+    }
+
 
     public TeradataSelectStatement parseSelect() {
         TeradataSelectParser selectParser = new TeradataSelectParser(this.exprParser);
         return new TeradataSelectStatement(selectParser.select(), JdbcConstants.TERADATA);
     }
 
-//    public SQLCreateProcedureStatement parseCreateProcedure() {
-//
-//        if (lexer.token() == Token.PROCEDURE) {
-////            if (replace) {
-////                lexer.reset(markBp, markChar, Token.CREATE);
-////            }
-//        }
-//        return null;
-//
-//    }
+    public SQLAlterFunctionStatement parseReplaceFunction() {
+        accept(Token.FUNCTION);
+
+        TeradataReplaceFunctionStatement stmt = new TeradataReplaceFunctionStatement();
+        stmt.setDbType(dbType);
+
+        SQLName name = this.exprParser.name();
+        stmt.setName(name);
+
+        if (lexer.token() == Token.LPAREN) {
+            lexer.nextToken();
+            parserParameters(stmt.getParameters(), stmt);
+            accept(Token.RPAREN);
+        }
+
+
+        acceptIdentifier("RETURNS");
+        SQLDataType dataType = this.exprParser.parseDataType();
+        stmt.setReturnDataType(dataType);
+
+        for (; ; ) {
+            if (lexer.token() == Token.COMMENT) {
+                lexer.nextToken();
+                SQLExpr comment = this.exprParser.primary();
+                stmt.setComment(comment);
+            } else if (lexer.identifierEquals(FnvHash.Constants.LANGUAGE)) {
+                lexer.nextToken();
+                acceptIdentifier("SQL");
+                stmt.setLanguageSql(true);
+            } else if (lexer.identifierEquals(FnvHash.Constants.SQL)) {
+                lexer.nextToken();
+                acceptIdentifier("SECURITY");
+
+                SQLExpr sqlSecurity = this.exprParser.name();
+                stmt.setSqlSecurity(sqlSecurity);
+            } else if (lexer.identifierEquals(FnvHash.Constants.CONTAINS) || lexer.token() == Token.CONTAINS) {
+                lexer.nextToken();
+                acceptIdentifier("SQL");
+                stmt.setContainsSql(true);
+            } else if (lexer.identifierEquals(FnvHash.Constants.DETERMINISTIC)) {
+                lexer.nextToken();
+                stmt.setDeterministic(true);
+            } else if (identifierEquals("COLLATION")) {
+                lexer.nextToken();
+                SQLExpr collation = this.exprParser.name();
+                stmt.setCollation(collation);
+            } else if (identifierEquals("INLINE")) {
+                lexer.nextToken();
+                acceptIdentifier("TYPE");
+                SQLExpr inline = this.exprParser.expr();
+                stmt.setInline(inline);
+            } else if (identifierEquals("RETURN")) {
+                SQLStatement returnStmt = parseReturn();
+                stmt.setBlock(returnStmt);
+                lexer.reset(lexer.text.length()-1);
+                lexer.nextToken();
+            } else {
+                break;
+            }
+
+        }
+
+        return stmt;
+    }
+
+    public SQLCreateFunctionStatement parseCreateFunction() {
+        SQLCreateFunctionStatement stmt = new SQLCreateFunctionStatement();
+        stmt.setDbType(dbType);
+
+        if (lexer.token() == Token.CREATE) {
+            lexer.nextToken();
+
+            if (lexer.token() == Token.OR) {
+                lexer.nextToken();
+                accept(Token.REPLACE);
+                stmt.setOrReplace(true);
+            }
+        }
+
+        if (lexer.identifierEquals(FnvHash.Constants.DEFINER)) {
+            lexer.nextToken();
+            accept(Token.EQ);
+//            SQLName definer = this.getExprParser().userName();
+//            stmt.setDefiner(definer);
+        }
+
+        accept(Token.FUNCTION);
+
+        stmt.setName(this.exprParser.name());
+
+        if (lexer.token() == Token.LPAREN) {// match "("
+            lexer.nextToken();
+            parserParameters(stmt.getParameters(), stmt);
+            accept(Token.RPAREN);// match ")"
+        }
+
+        acceptIdentifier("RETURNS");
+        SQLDataType dataType = this.exprParser.parseDataType();
+        stmt.setReturnDataType(dataType);
+
+        for (; ; ) {
+            if (lexer.identifierEquals("DETERMINISTIC")) {
+                lexer.nextToken();
+                stmt.setDeterministic(true);
+                continue;
+            }
+
+            break;
+        }
+
+        SQLStatement block;
+        if (lexer.token() == Token.BEGIN) {
+            block = this.parseBlock();
+        } else {
+            block = this.parseStatement();
+        }
+
+        stmt.setBlock(block);
+
+        return stmt;
+    }
 
     /**
      * parse create procedure stmt
@@ -588,6 +737,61 @@ public class TeradataStatementParser extends SQLStatementParser {
 
     }
 
+    public SQLStatement parseReplace() {
+        accept(Token.REPLACE);
+
+        if (lexer.token() == Token.FUNCTION) {
+            return parseReplaceFunction();
+        }
+
+        if (lexer.token() == Token.PROCEDURE) {
+//            return parseReplaceProcedure();
+            throw new ParserException("TODO " + lexer.info());
+        }
+
+        if (lexer.token() == Token.TABLESPACE) {
+//            return parseReplaceTableSpace();
+            throw new ParserException("TODO " + lexer.info());
+        }
+
+        if (lexer.token() == Token.VIEW) {
+//            return parseReplaceView();
+            throw new ParserException("TODO " + lexer.info());
+        }
+
+        if (lexer.identifierEquals(FnvHash.Constants.LOGFILE)) {
+//            return parseReplaceLogFileGroup();
+            throw new ParserException("TODO " + lexer.info());
+        }
+
+        if (lexer.identifierEquals(FnvHash.Constants.SERVER)) {
+//            return parseReplaceServer();
+            throw new ParserException("TODO " + lexer.info());
+        }
+
+        if (lexer.identifierEquals(FnvHash.Constants.ALGORITHM)) {
+//            return parseReplaceView();
+            throw new ParserException("TODO " + lexer.info());
+        }
+
+        if (lexer.identifierEquals(FnvHash.Constants.DEFINER)) {
+//            Lexer.SavePoint savePoint = lexer.mark();
+//            lexer.nextToken();
+//            accept(Token.EQ);
+//            this.getExprParser().userName();
+//            if (lexer.identifierEquals(FnvHash.Constants.EVENT)) {
+//                lexer.reset(savePoint);
+//                return parseReplaceEvent();
+//            } else {
+//                lexer.reset(savePoint);
+//                return parseReplaceView();
+//            }
+            throw new ParserException("TODO " + lexer.info());
+        }
+
+        throw new ParserException("TODO " + lexer.info());
+    }
+
     public TeradataHelpStatement parseHelp() {
         TeradataHelpStatement collect = new TeradataHelpStatement();
         collect.setDbType(dbType);
@@ -600,10 +804,27 @@ public class TeradataStatementParser extends SQLStatementParser {
 
         collect.setTarget(this.exprParser.expr());
 
+        if (lexer.token() == Token.IDENTIFIER) {
+            collect.setOpts(this.exprParser.name());
+        }
         return collect;
 
     }
 
+    public SQLStatement parseShow() {
+        TeradataShowStatement collect = new TeradataShowStatement();
+        collect.setDbType(dbType);
+
+        accept(Token.SHOW);
+
+        collect.setType(lexer.token().name());
+
+        lexer.nextToken();
+
+        collect.setTarget(this.exprParser.expr());
+
+        return collect;
+    }
 
     public SQLInsertStatement parseInsert() {
         TeradataInsertStatement insertStatement = new TeradataInsertStatement();

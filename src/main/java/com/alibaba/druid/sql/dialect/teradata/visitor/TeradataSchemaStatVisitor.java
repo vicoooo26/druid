@@ -305,6 +305,16 @@ public class TeradataSchemaStatVisitor extends SchemaStatVisitor implements Tera
     }
 
     @Override
+    public boolean visit(TeradataShowStatement x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(TeradataShowStatement x) {
+
+    }
+
+    @Override
     public boolean visit(TeradataSelectStatement x) {
         return true;
     }
@@ -334,4 +344,23 @@ public class TeradataSchemaStatVisitor extends SchemaStatVisitor implements Tera
 
     }
 
+    @Override
+    public boolean visit(TeradataReplaceFunctionStatement x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(TeradataReplaceFunctionStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(TeradataReturnStatement x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(TeradataReturnStatement x) {
+
+    }
 }

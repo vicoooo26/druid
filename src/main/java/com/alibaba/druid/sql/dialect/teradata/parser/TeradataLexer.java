@@ -31,6 +31,7 @@ public class TeradataLexer extends Lexer {
 
         map.put("QUALIFY", Token.QUALIFY);
 
+        map.put("SHOW", Token.SHOW);
         map.put("MOD", Token.MOD);
 
         map.put("USING", Token.USING);

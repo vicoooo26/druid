@@ -68,6 +68,18 @@ public interface TeradataASTVisitor extends SQLASTVisitor {
 
     void endVisit(TeradataHelpStatement x);
 
+    boolean visit(TeradataShowStatement x);
+
+    void endVisit(TeradataShowStatement x);
+
+    boolean visit(TeradataReplaceFunctionStatement x);
+
+    void endVisit(TeradataReplaceFunctionStatement x);
+
+    boolean visit(TeradataReturnStatement x);
+
+    void endVisit(TeradataReturnStatement x);
+
     boolean visit(TeradataIndex x);
 
     void endVisit(TeradataIndex x);

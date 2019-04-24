@@ -1,11 +1,13 @@
 package com.alibaba.druid.sql.dialect.teradata.visitor;
 
 import com.alibaba.druid.sql.ast.*;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.teradata.ast.stmt.*;
 import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataMergeStatement.MergeInsertClause;
 import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataMergeStatement.MergeUpdateClause;
 import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
+import org.codehaus.janino.IClass;
 
 import java.util.List;
 
@@ -78,12 +80,29 @@ public class TeradataOutputVisitor extends SQLASTOutputVisitor implements Terada
 
         print0(ucase ? "HELP " + x.getType() + " " : "help " + x.getType() + " ");
         x.getTarget().accept(this);
-
+        if (x.getOpts() != null) {
+            String opts = ((SQLIdentifierExpr) x.getOpts()).getName();
+            print0(ucase ? " " + opts.toUpperCase() : " " + opts.toLowerCase());
+        }
         return false;
     }
 
     @Override
     public void endVisit(TeradataHelpStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(TeradataShowStatement x) {
+
+        print0(ucase ? "SHOW " + x.getType() + " " : "show " + x.getType() + " ");
+        x.getTarget().accept(this);
+
+        return false;
+    }
+
+    @Override
+    public void endVisit(TeradataShowStatement x) {
 
     }
 
@@ -154,7 +173,7 @@ public class TeradataOutputVisitor extends SQLASTOutputVisitor implements Terada
             x.getSelect().accept(this);
         }
 
-        if (x.getConstraints() != null) {
+        if (x.getConstraints() != null && x.getConstraints().size() > 0) {
             println();
             if (x.isUniqueIndex()) {
                 print0(ucase ? "UNIQUE PRIMARY " : "unique primary ");
@@ -178,6 +197,96 @@ public class TeradataOutputVisitor extends SQLASTOutputVisitor implements Terada
         // TODO Auto-generated method stub
 
     }
+
+
+    @Override
+    public boolean visit(TeradataReplaceFunctionStatement x) {
+        print0(ucase ? "REPLACE FUNCTION " : "replace function ");
+        x.getName().accept(this);
+
+        int paramSize = x.getParameters().size();
+
+        if (paramSize > 0) {
+            this.indentCount++;
+            println("(");
+
+            for (int i = 0; i < paramSize; ++i) {
+                if (i != 0) {
+                    print0(", ");
+                    println();
+                }
+                SQLParameter param = x.getParameters().get(i);
+                param.accept(this);
+            }
+
+            this.indentCount--;
+            println();
+            println(")");
+        }
+        if (x.getReturnDataType() != null
+        ) {
+            print0(ucase ? "RETURNS " : "returns ");
+            x.getReturnDataType().accept(this);
+            println();
+        }
+        if (x.isLanguageSql()) {
+            println(ucase ? "LANGUAGE SQL " : "language sql ");
+        }
+
+        if (x.isContainsSql()) {
+            println(ucase ? "CONTAINS SQL" : "contains sql");
+        }
+
+        if (x.isDeterministic()) {
+            println(ucase ? "DETERMINISTIC " : "deterministic ");
+        }
+        SQLExpr sqlSecurity = x.getSqlSecurity();
+        if (sqlSecurity != null) {
+            print0(ucase ? "SQL SECURITY " : "sql security ");
+            sqlSecurity.accept(this);
+            println();
+        }
+        SQLExpr collation = x.getCollation();
+        if (collation != null) {
+            print0(ucase ? "COLLATION " : "collation ");
+            collation.accept(this);
+            println();
+        }
+        SQLExpr inline = x.getInline();
+        if (inline != null) {
+            print0(ucase ? "INLINE TYPE " : "inline type ");
+            inline.accept(this);
+        }
+        SQLStatement returnBlock = x.getBlock();
+        if (returnBlock != null) {
+            println();
+            returnBlock.accept(this);
+        }
+        return false;
+    }
+
+    @Override
+    public void endVisit(TeradataReplaceFunctionStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(TeradataReturnStatement x) {
+        String str = x.getReturnBlock();
+        if (str != null) {
+            print0(ucase ? "RETURN " : "return ");
+            println("(");
+            println(str);
+            print(")");
+        }
+        return false;
+    }
+
+    @Override
+    public void endVisit(TeradataReturnStatement x) {
+
+    }
+
 
     @Override
     public boolean visit(SQLCreateProcedureStatement x) {

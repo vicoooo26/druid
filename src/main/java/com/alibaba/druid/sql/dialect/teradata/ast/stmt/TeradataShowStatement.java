@@ -1,22 +1,12 @@
 package com.alibaba.druid.sql.dialect.teradata.ast.stmt;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.dialect.teradata.visitor.TeradataASTVisitor;
 
-public class TeradataHelpStatement extends TeradataStatementImpl {
+public class TeradataShowStatement extends TeradataStatementImpl {
 
     private SQLObject target;
     private String type;
-    private SQLObject opts;
-
-    public SQLObject getOpts() {
-        return opts;
-    }
-
-    public void setOpts(SQLObject opts) {
-        this.opts = opts;
-    }
 
     public String getType() {
         return type;
@@ -40,6 +30,5 @@ public class TeradataHelpStatement extends TeradataStatementImpl {
         }
         visitor.endVisit(this);
     }
-
 
 }

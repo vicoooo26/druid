@@ -397,7 +397,7 @@ public class OdpsStatementParser extends SQLStatementParser {
                 lexer.nextToken();
             }
 
-            parsePrivileages(stmt.getPrivileges(), stmt);
+            parsePrivileges(stmt.getPrivileges(), stmt);
         }
 
         if (lexer.token() == Token.ON) {
@@ -464,7 +464,7 @@ public class OdpsStatementParser extends SQLStatementParser {
         return stmt;
     }
 
-    protected void parsePrivileages(List<SQLExpr> privileges, SQLObject parent) {
+    protected void parsePrivileges(List<SQLExpr> privileges, SQLObject parent) {
         for (;;) {
             String privilege = null;
             if (lexer.token() == Token.ALL) {

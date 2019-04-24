@@ -37,14 +37,14 @@ public class MySql_Create_Function_0 extends MysqlTest {
 
         SchemaStatVisitor visitor = SQLUtils.createSchemaStatVisitor(JdbcConstants.MYSQL);
         stmt.accept(visitor);
-        
+
         assertEquals("CREATE FUNCTION hello (\n" +
                         "\ts CHAR(20)\n" +
                         ")\n" +
                         "RETURNS CHAR(50) DETERMINISTIC\n" +
                         "RETURN CONCAT('Hello, ', s, '!');", //
                             SQLUtils.toMySqlString(stmt));
-        
+
         assertEquals("create function hello (\n" +
                         "\ts CHAR(20)\n" +
                         ")\n" +
@@ -56,14 +56,14 @@ public class MySql_Create_Function_0 extends MysqlTest {
 //        System.out.println("fields : " + visitor.getColumns());
 //        System.out.println("coditions : " + visitor.getConditions());
 //        System.out.println("orderBy : " + visitor.getOrderByColumns());
-        
+
         assertEquals(0, visitor.getTables().size());
         assertEquals(1, visitor.getColumns().size());
         assertEquals(0, visitor.getConditions().size());
 
 //        Assert.assertTrue(visitor.getTables().containsKey(new TableStat.Name("City")));
 //        Assert.assertTrue(visitor.getTables().containsKey(new TableStat.Name("t2")));
-        
+
 //        Assert.assertTrue(visitor.getColumns().contains(new Column("t2", "id")));
     }
 }

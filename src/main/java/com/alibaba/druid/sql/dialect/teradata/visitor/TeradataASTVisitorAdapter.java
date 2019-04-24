@@ -215,4 +215,34 @@ public class TeradataASTVisitorAdapter extends SQLASTVisitorAdapter implements T
 
     }
 
+    @Override
+    public boolean visit(TeradataShowStatement x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(TeradataShowStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(TeradataReplaceFunctionStatement x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(TeradataReplaceFunctionStatement x) {
+
+    }
+
+    @Override
+    public boolean visit(TeradataReturnStatement x) {
+        return true;
+    }
+
+    @Override
+    public void endVisit(TeradataReturnStatement x) {
+
+    }
+
 }

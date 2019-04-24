@@ -35,6 +35,7 @@ import com.alibaba.druid.sql.dialect.mysql.parser.MySqlExprParser;
 import com.alibaba.druid.sql.dialect.oracle.parser.OracleExprParser;
 import com.alibaba.druid.util.FnvHash;
 import com.alibaba.druid.util.JdbcConstants;
+import org.springframework.jca.cci.CciOperationNotSupportedException;
 
 public class SQLStatementParser extends SQLParser {
 
@@ -207,6 +208,12 @@ public class SQLStatementParser extends SQLParser {
                 }
                 case ALTER: {
                     SQLStatement stmt = parseAlter();
+                    stmt.setParent(parent);
+                    statementList.add(stmt);
+                    continue;
+                }
+                case REPLACE: {
+                    SQLStatement stmt = parseReplace();
                     stmt.setParent(parent);
                     statementList.add(stmt);
                     continue;
@@ -707,7 +714,7 @@ public class SQLStatementParser extends SQLParser {
         accept(Token.GRANT);
         SQLGrantStatement stmt = new SQLGrantStatement(getDbType());
 
-        parsePrivileages(stmt.getPrivileges(), stmt);
+        parsePrivileges(stmt.getPrivileges(), stmt);
 
         if (lexer.token == Token.ON) {
             lexer.nextToken();
@@ -822,7 +829,7 @@ public class SQLStatementParser extends SQLParser {
         return stmt;
     }
 
-    protected void parsePrivileages(List<SQLExpr> privileges, SQLObject parent) {
+    protected void parsePrivileges(List<SQLExpr> privileges, SQLObject parent) {
         for (; ; ) {
             String privilege = null;
             if (lexer.token == Token.ALL) {
@@ -874,6 +881,9 @@ public class SQLStatementParser extends SQLParser {
                     lexer.nextToken();
                 } else if (lexer.token == Token.PROCEDURE) {
                     privilege = "CREATE PROCEDURE";
+                    lexer.nextToken();
+                } else if (lexer.token == Token.FUNCTION) {
+                    privilege = "CREATE FUNCTION";
                     lexer.nextToken();
                 } else if (lexer.token == Token.SEQUENCE) {
                     privilege = "CREATE SEQUENCE";
@@ -1065,7 +1075,7 @@ public class SQLStatementParser extends SQLParser {
 
         SQLRevokeStatement stmt = new SQLRevokeStatement(getDbType());
 
-        parsePrivileages(stmt.getPrivileges(), stmt);
+        parsePrivileges(stmt.getPrivileges(), stmt);
 
         if (lexer.token == Token.ON) {
             lexer.nextToken();
@@ -2028,6 +2038,10 @@ public class SQLStatementParser extends SQLParser {
 
     public SQLStatement parseCollect() {
         throw new ParserException("do not support " + dbType + " collect syntax");
+    }
+
+    public SQLStatement parseReplace() {
+        throw new ParserException("do not support " + dbType + " repplace syntax");
     }
 
     public SQLStatement parseHelp() {
