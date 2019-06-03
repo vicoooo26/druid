@@ -286,7 +286,7 @@ public class DB2OutputVisitor extends SQLASTOutputVisitor implements DB2ASTVisit
 
         String alias = x.getAlias();
         if (alias != null) {
-            print(' ');
+            print0(ucase ? " AS " : " as ");
             print0(alias);
         }
 

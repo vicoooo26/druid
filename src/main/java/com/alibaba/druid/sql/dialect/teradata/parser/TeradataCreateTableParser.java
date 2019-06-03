@@ -4,7 +4,9 @@ import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
 import com.alibaba.druid.sql.ast.statement.SQLConstraint;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
+import com.alibaba.druid.sql.dialect.postgresql.ast.stmt.PGSelectQueryBlock.ForClause;
 import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataCreateTableStatement;
+import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataSQLColumnDefinition;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLCreateTableParser;
 import com.alibaba.druid.sql.parser.SQLExprParser;
@@ -52,14 +54,77 @@ public class TeradataCreateTableParser extends SQLCreateTableParser {
 
         stmt.setName(this.exprParser.name());
 
+        for (; ; ) {
+            if (lexer.token() == Token.COMMA) {
+                lexer.nextToken();
+                if (lexer.token() == Token.IDENTIFIER) {
+
+                    if ("NO".equalsIgnoreCase(lexer.stringVal())) {
+                        lexer.nextToken();
+                        if ("BEFORE".equalsIgnoreCase(lexer.stringVal())) {
+                            lexer.nextToken();
+                            if ("JOURNAL".equalsIgnoreCase(lexer.stringVal())) {
+                                stmt.setBeforeJournal(false);
+                            }
+                        }
+                        if ("AFTER".equalsIgnoreCase(lexer.stringVal())) {
+                            lexer.nextToken();
+                            if ("JOURNAL".equalsIgnoreCase(lexer.stringVal())) {
+                                stmt.setAfterJournal(false);
+                            }
+                        }
+                        if ("MERGEBLOCKRATIO".equalsIgnoreCase(lexer.stringVal())) {
+                            lexer.nextToken();
+                            if ("JOURNAL".equalsIgnoreCase(lexer.stringVal())) {
+                                stmt.setMergeBlockRatio(false);
+                            }
+                        }
+                        if ("FALLBACK".equalsIgnoreCase(lexer.stringVal())) {
+                            lexer.nextToken();
+                            stmt.setFallback(false);
+                        }
+                    }
+                    if ("CHECKSUM".equalsIgnoreCase(lexer.stringVal())) {
+                        lexer.nextToken();
+                        if (lexer.token() == Token.EQ) {
+                            lexer.nextToken();
+                            stmt.setChecksum(this.exprParser.expr());
+                        }
+                    }
+                    if ("MAP".equalsIgnoreCase(lexer.stringVal())) {
+                        lexer.nextToken();
+                        if (lexer.token() == Token.EQ) {
+                            lexer.nextToken();
+                            stmt.setMap(this.exprParser.name());
+                        }
+                    }
+                }
+                if (lexer.token() == Token.DEFAULT) {
+                    lexer.nextToken();
+                    if ("MERGEBLOCKRATIO".equalsIgnoreCase(lexer.stringVal())) {
+                        stmt.setMergeBlockRatio(true);
+                    }
+                }
+                if (lexer.token() == Token.LPAREN) {
+                    break;
+                }
+                if (lexer.token() == Token.AS) {
+                    break;
+                }
+                if (lexer.token() != Token.COMMA) {
+                    lexer.nextToken();
+                }
+                continue;
+            }
+            if (lexer.token() == Token.AS) {
+                break;
+            }
+
+        }
+
         if (lexer.token() == (Token.AS)) {
             lexer.nextToken();
         }
-
-        if (lexer.token() == Token.COMMA) {
-
-        }
-
         if (lexer.token() == Token.LPAREN) {
             lexer.nextToken();
             if (lexer.token() == Token.SELECT || lexer.token() == Token.SEL) {
@@ -67,7 +132,7 @@ public class TeradataCreateTableParser extends SQLCreateTableParser {
                 stmt.setSelect(query);
             } else {
                 for (; ; ) {
-                    SQLColumnDefinition column = this.exprParser.parseColumn();
+                    TeradataSQLColumnDefinition column = this.getExprParser().parseColumn();
                     stmt.getTableElementList().add(column);
 
                     if (lexer.token() == Token.COMMA) {

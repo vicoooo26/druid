@@ -8,8 +8,6 @@
 	<packaging>jar</packaging>
 	<name>druid</name>
 	<description>An JDBC datasource implementation.</description>
-	<url>https://github.com/alibaba/druid</url>
-	<inceptionYear>2013</inceptionYear>
 
 	<properties>
 		<spring.version>4.3.20.RELEASE</spring.version>
@@ -238,12 +236,12 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 				<file>
-					<exists>${env.JAVA_HOME}/lib/jconsole.jar</exists>
+					<exists>/home/transwarp/devDependencies/jdk1.8.0_192/lib/jconsole.jar</exists>
 				</file>
 			</activation>
 			<properties>
-				<toolsjar>${env.JAVA_HOME}/lib/tools.jar</toolsjar>
-				<jconsolejar>${env.JAVA_HOME}/lib/jconsole.jar</jconsolejar>
+				<toolsjar>/home/transwarp/devDependencies/jdk1.8.0_192/lib/tools.jar</toolsjar>
+				<jconsolejar>/home/transwarp/devDependencies/jdk1.8.0_192/lib/jconsole.jar</jconsolejar>
 			</properties>
 
 			<dependencies>

@@ -131,6 +131,38 @@ public class TeradataOutputVisitor extends SQLASTOutputVisitor implements Terada
 
         printTableSourceExpr(x.getName());
 
+        if (x.isFallback()) {
+            println(ucase ? ",FALLBACK," : ", fallback,");
+        } else {
+            println(ucase ? ",NO FALLBACK," : ",no fallback,");
+        }
+        if (x.isBeforeJournal()) {
+            println(ucase ? "BEFORE JOURNAL," : ",before journal,");
+        } else {
+            println(ucase ? "NO BEFORE JOURNAL," : ",no before journal,");
+        }
+        if (x.isAfterJournal()) {
+            println(ucase ? "AFTER JOURNAL," : ",after journal,");
+        } else {
+            println(ucase ? "NO AFTER JOURNAL," : ",no after journal,");
+        }
+
+        if (x.getChecksum() != null) {
+            print0(ucase ? "CHECKSUM = " : ", checksum = ");
+            print0(x.getChecksum().toString());
+            println(",");
+        }
+
+        if (x.isMergeBlockRatio()) {
+            println(ucase ? "DEFAULT MERGEBLOCKRATIO," : "default mergeblockratio,");
+        } else {
+            println(ucase ? "NO MERGEBLOCKRATIO," : "no mergeblockratio,");
+        }
+        if (x.getMap() != null) {
+            print0(ucase ? "MAP = " : "map = ");
+            print0(x.getMap().toString());
+        }
+
         printTableElements(x.getTableElementList());
 
         SQLExprTableSource inherits = x.getInherits();

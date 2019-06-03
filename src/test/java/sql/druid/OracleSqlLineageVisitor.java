@@ -6,97 +6,96 @@ import com.alibaba.druid.sql.ast.statement.SQLTableElement;
 import com.alibaba.druid.sql.dialect.oracle.ast.stmt.OracleCreateTableStatement;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OracleSqlLineageVisitor extends OracleSchemaStatVisitor {
-    protected final Map<String, List<String>> lineage = new HashMap<>();
+public class OracleSqlLineageVisitor extends OracleSchemaStatVisitor implements ILineage {
 
-    public Map<String, List<String>> getLineage() {
-        return lineage;
+  protected final Map<String, List<String>> lineage = new HashMap<>();
+
+  public Map<String, List<String>> getLineage() {
+    return lineage;
+  }
+
+  protected Map<String, List<String>> addLineage(String downStream, String upStream) {
+    Map<String, List<String>> lineage = this.getLineage();
+    List<String> upStreams = new ArrayList<>();
+    if (null == lineage.get(downStream)) {
+      upStreams.add(upStream);
+      lineage.put(downStream, upStreams);
+    } else {
+      upStreams = lineage.get(downStream);
+      upStreams.remove(upStream);
+      upStreams.add(upStream);
+      lineage.put(downStream, upStreams);
+    }
+    return lineage;
+  }
+
+  @Override
+  public boolean visit(OracleCreateTableStatement x) {
+    if (repository != null
+        && x.getParent() == null) {
+      repository.resolve(x);
     }
 
-    protected Map<String, List<String>> addLineage(String sourceName, String targetName) {
-        Map<String, List<String>> lineage = this.getLineage();
-        List<String> targets = new ArrayList<>();
-        if (null == lineage.get(sourceName)) {
-            targets.add(targetName);
-            lineage.put(sourceName, targets);
-        } else {
-            targets = lineage.get(sourceName);
-            targets.add(targetName);
-            lineage.put(sourceName, targets);
-        }
-        return lineage;
+    for (SQLTableElement e : x.getTableElementList()) {
+      e.setParent(x);
     }
 
-    @Override
-    public boolean visit(OracleCreateTableStatement x) {
-        if (repository != null
-                && x.getParent() == null) {
-            repository.resolve(x);
-        }
+    TableStat stat = getTableStat(x.getName());
+    stat.incrementCreateCount();
 
-        for (SQLTableElement e : x.getTableElementList()) {
-            e.setParent(x);
-        }
+    accept(x.getTableElementList());
 
-        TableStat stat = getTableStat(x.getName());
-        stat.incrementCreateCount();
-
-        accept(x.getTableElementList());
-
-        if (x.getInherits() != null) {
-            x.getInherits().accept(this);
-        }
-
-        if (x.getSelect() != null) {
-            x.getSelect().accept(this);
-        }
-
-        // TODO 多层父子关系嵌套的血缘
-        StringBuilder sourceName = new StringBuilder();
-        sourceName.append("");
-        if (null != x.getLike()) {
-            sourceName.append(x.getLike().toString());
-        } else if (null != x.getSelect()) {
-            sourceName.append(((SQLSelectQueryBlock) x.getSelect().getQuery()).getFrom());
-        }
-        String targetName = x.getName().toString();
-        addLineage(sourceName.toString(), targetName);
-        return false;
+    if (x.getInherits() != null) {
+      x.getInherits().accept(this);
     }
 
-    @Override
-    public void endVisit(OracleCreateTableStatement x) {
-
+    if (x.getSelect() != null) {
+      x.getSelect().accept(this);
     }
 
-    @Override
-    public boolean visit(SQLCreateViewStatement x) {
-        if (repository != null
-                && x.getParent() == null) {
-            repository.resolve(x);
-        }
+    // TODO 多层父子关系嵌套的血缘
+    String upStream = null;
+    if (null != x.getLike()) {
+      upStream = (x.getLike().toString());
+    } else if (null != x.getSelect()) {
+      upStream = (((SQLSelectQueryBlock) x.getSelect().getQuery()).getFrom()).toString();
+    }
+    String downStream = x.getName().toString();
+    addLineage(downStream, upStream);
+    return false;
+  }
 
-        x.getSubQuery().accept(this);
-        StringBuilder sourceName = new StringBuilder();
-        sourceName.append("");
-        if (null != x.getSubQuery()) {
-            sourceName.append(((SQLSelectQueryBlock) x.getSubQuery().getQuery()).getFrom());
-        }
-        String targetName = x.getName().toString();
-        addLineage(sourceName.toString(), targetName);
-        return false;
+  @Override
+  public void endVisit(OracleCreateTableStatement x) {
 
+  }
+
+  @Override
+  public boolean visit(SQLCreateViewStatement x) {
+    if (repository != null
+        && x.getParent() == null) {
+      repository.resolve(x);
     }
 
-    @Override
-    public void endVisit(SQLCreateViewStatement x) {
-
+    x.getSubQuery().accept(this);
+    String upStream = null;
+    if (null != x.getSubQuery()) {
+      upStream = ((SQLSelectQueryBlock) x.getSubQuery().getQuery()).getFrom().toString();
     }
+    String downStream = x.getName().toString();
+    addLineage(downStream, upStream);
+    return false;
+
+  }
+
+  @Override
+  public void endVisit(SQLCreateViewStatement x) {
+
+  }
 
 }

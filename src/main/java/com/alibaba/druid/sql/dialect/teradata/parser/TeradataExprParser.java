@@ -1,12 +1,26 @@
 package com.alibaba.druid.sql.dialect.teradata.parser;
 
+import com.alibaba.druid.sql.ast.SQLCommentHint;
+import com.alibaba.druid.sql.ast.SQLDataType;
+import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.expr.*;
+import com.alibaba.druid.sql.ast.statement.SQLCharacterDataType;
+import com.alibaba.druid.sql.ast.statement.SQLColumnCheck;
+import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
+import com.alibaba.druid.sql.ast.statement.SQLColumnPrimaryKey;
+import com.alibaba.druid.sql.ast.statement.SQLColumnReference;
+import com.alibaba.druid.sql.ast.statement.SQLColumnUniqueKey;
 import com.alibaba.druid.sql.ast.statement.SQLConstraint;
+import com.alibaba.druid.sql.ast.statement.SQLForeignKeyImpl;
+import com.alibaba.druid.sql.ast.statement.SQLNotNullConstraint;
+import com.alibaba.druid.sql.ast.statement.SQLNullConstraint;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLUnique;
 import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataIndex;
+import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataSQLCharacterDataType;
+import com.alibaba.druid.sql.dialect.teradata.ast.stmt.TeradataSQLColumnDefinition;
 import com.alibaba.druid.sql.parser.*;
 import com.alibaba.druid.util.FnvHash;
 import com.alibaba.druid.util.JdbcConstants;
@@ -102,6 +116,373 @@ public class TeradataExprParser extends SQLExprParser {
 //
 //        return index;
 //    }
+
+    @Override
+    public TeradataSQLColumnDefinition parseColumn() {
+        TeradataSQLColumnDefinition column = createColumnDefinition();
+        column.setName(name());
+
+        final Token token = lexer.token();
+        if (token != Token.SET //
+            && token != Token.DROP
+            && token != Token.PRIMARY
+            && token != Token.RPAREN) {
+            column.setDataType(parseDataType());
+        }
+        return parseColumnRest(column);
+    }
+
+
+    public TeradataSQLColumnDefinition createColumnDefinition() {
+        TeradataSQLColumnDefinition column = new TeradataSQLColumnDefinition();
+        column.setDbType(dbType);
+        return column;
+    }
+    public TeradataSQLColumnDefinition parseColumnRest(TeradataSQLColumnDefinition column) {
+        if (lexer.token() == Token.DEFAULT) {
+            lexer.nextToken();
+            column.setDefaultExpr(bitOr());
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.NOT) {
+            lexer.nextToken();
+            accept(Token.NULL);
+            SQLNotNullConstraint notNull = new SQLNotNullConstraint();
+            if (lexer.token() == Token.HINT) {
+                List<SQLCommentHint> hints = this.parseHints();
+                notNull.setHints(hints);
+            }
+            column.addConstraint(notNull);
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.NULL) {
+            lexer.nextToken();
+            column.getConstraints().add(new SQLNullConstraint());
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.PRIMARY) {
+            lexer.nextToken();
+            accept(Token.KEY);
+            column.addConstraint(new SQLColumnPrimaryKey());
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.UNIQUE) {
+            lexer.nextToken();
+            if (lexer.token() == Token.KEY) {
+                lexer.nextToken();
+            }
+            column.addConstraint(new SQLColumnUniqueKey());
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.KEY) {
+            lexer.nextToken();
+            column.addConstraint(new SQLColumnUniqueKey());
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.REFERENCES) {
+            SQLColumnReference ref = parseReference();
+            column.addConstraint(ref);
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.CONSTRAINT) {
+            lexer.nextToken();
+
+            SQLName name = this.name();
+
+            if (lexer.token() == Token.PRIMARY) {
+                lexer.nextToken();
+                accept(Token.KEY);
+                SQLColumnPrimaryKey pk = new SQLColumnPrimaryKey();
+                pk.setName(name);
+                column.addConstraint(pk);
+                return parseColumnRest(column);
+            }
+
+            if (lexer.token() == Token.UNIQUE) {
+                lexer.nextToken();
+                SQLColumnUniqueKey uk = new SQLColumnUniqueKey();
+                uk.setName(name);
+
+                column.addConstraint(uk);
+                return parseColumnRest(column);
+            }
+
+            if (lexer.token() == Token.REFERENCES) {
+                SQLColumnReference ref = parseReference();
+                ref.setName(name);
+                column.addConstraint(ref);
+                return parseColumnRest(column);
+            }
+
+            if (lexer.token() == Token.NOT) {
+                lexer.nextToken();
+                accept(Token.NULL);
+                SQLNotNullConstraint notNull = new SQLNotNullConstraint();
+                notNull.setName(name);
+                column.addConstraint(notNull);
+                return parseColumnRest(column);
+            }
+
+            if (lexer.token() == Token.CHECK) {
+                SQLColumnCheck check = parseColumnCheck();
+                check.setName(name);
+                check.setParent(column);
+                column.addConstraint(check);
+                return parseColumnRest(column);
+            }
+
+            if (lexer.token() == Token.DEFAULT) {
+                lexer.nextToken();
+                SQLExpr expr = this.expr();
+                column.setDefaultExpr(expr);
+                return parseColumnRest(column);
+            }
+
+            throw new ParserException("TODO : " + lexer.info());
+        }
+
+        if (lexer.token() == Token.CHECK) {
+            SQLColumnCheck check = parseColumnCheck();
+            column.addConstraint(check);
+            return parseColumnRest(column);
+        }
+
+        if (lexer.token() == Token.COMMENT) {
+            lexer.nextToken();
+
+            if (lexer.token() == Token.LITERAL_ALIAS) {
+                String alias = lexer.stringVal();
+                if (alias.length() > 2 && alias.charAt(0) == '"' && alias.charAt(alias.length() - 1) == '"') {
+                    alias = alias.substring(1, alias.length() - 1);
+                }
+                column.setComment(alias);
+                lexer.nextToken();
+            } else {
+                column.setComment(primary());
+            }
+            return parseColumnRest(column);
+        }
+
+        if (lexer.identifierEquals(FnvHash.Constants.AUTO_INCREMENT)) {
+            lexer.nextToken();
+            column.setAutoIncrement(true);
+            return parseColumnRest(column);
+        }
+
+        return column;
+    }
+
+    private SQLColumnReference parseReference() {
+        SQLColumnReference fk = new SQLColumnReference();
+
+        lexer.nextToken();
+        fk.setTable(this.name());
+        accept(Token.LPAREN);
+        this.names(fk.getColumns(), fk);
+        accept(Token.RPAREN);
+
+        if (lexer.identifierEquals(FnvHash.Constants.MATCH)) {
+            lexer.nextToken();
+            if (lexer.identifierEquals("FULL") || lexer.token() == Token.FULL) {
+                fk.setReferenceMatch(SQLForeignKeyImpl.Match.FULL);
+                lexer.nextToken();
+            } else if (lexer.identifierEquals(FnvHash.Constants.PARTIAL)) {
+                fk.setReferenceMatch(SQLForeignKeyImpl.Match.PARTIAL);
+                lexer.nextToken();
+            } else if (lexer.identifierEquals(FnvHash.Constants.SIMPLE)) {
+                fk.setReferenceMatch(SQLForeignKeyImpl.Match.SIMPLE);
+                lexer.nextToken();
+            } else {
+                throw new ParserException("TODO : " + lexer.info());
+            }
+        }
+
+        while (lexer.token() == Token.ON) {
+            lexer.nextToken();
+
+            if (lexer.token() == Token.DELETE) {
+                lexer.nextToken();
+
+                SQLForeignKeyImpl.Option option = parseReferenceOption();
+                fk.setOnDelete(option);
+            } else if (lexer.token() == Token.UPDATE) {
+                lexer.nextToken();
+
+                SQLForeignKeyImpl.Option option = parseReferenceOption();
+                fk.setOnUpdate(option);
+            } else {
+                throw new ParserException("syntax error, expect DELETE or UPDATE, actual " + lexer.token() + " "
+                    + lexer.info());
+            }
+        }
+
+        return fk;
+    }
+    public SQLDataType parseDataType() {
+        return parseDataType(true);
+    }
+
+    public SQLDataType parseDataType(boolean restrict) {
+        Token token = lexer.token();
+        if (token == Token.DEFAULT || token == Token.NOT || token == Token.NULL) {
+            return null;
+        }
+
+        SQLName typeExpr = name();
+        final long typeNameHashCode = typeExpr.nameHashCode64();
+        String typeName = typeExpr.toString();
+
+        if (typeNameHashCode == FnvHash.Constants.LONG
+            && lexer.identifierEquals(FnvHash.Constants.BYTE)
+            && JdbcConstants.MYSQL.equals(getDbType()) //
+        ) {
+            typeName += (' ' + lexer.stringVal());
+            lexer.nextToken();
+        } else if (typeNameHashCode == FnvHash.Constants.DOUBLE
+            && JdbcConstants.POSTGRESQL.equals(getDbType()) //
+        ) {
+            typeName += (' ' + lexer.stringVal());
+            lexer.nextToken();
+        }
+
+        if (typeNameHashCode == FnvHash.Constants.UNSIGNED) {
+            if (lexer.token() == Token.IDENTIFIER) {
+                typeName += (' ' + lexer.stringVal());
+                lexer.nextToken();
+            }
+        }
+
+        if (isCharType(typeName)) {
+            TeradataSQLCharacterDataType charType = new TeradataSQLCharacterDataType(typeName);
+
+            if (lexer.token() == Token.LPAREN) {
+                lexer.nextToken();
+                SQLExpr arg = this.expr();
+                arg.setParent(charType);
+                charType.addArgument(arg);
+                accept(Token.RPAREN);
+            }
+
+            charType = (TeradataSQLCharacterDataType) parseCharTypeRest(charType);
+
+            if (lexer.token() == Token.HINT) {
+                List<SQLCommentHint> hints = this.parseHints();
+                charType.setHints(hints);
+            }
+
+            return charType;
+        }
+
+        if ("character".equalsIgnoreCase(typeName) && "varying".equalsIgnoreCase(lexer.stringVal())) {
+            typeName += ' ' + lexer.stringVal();
+            lexer.nextToken();
+        }
+
+        SQLDataType dataType = new SQLDataTypeImpl(typeName);
+        dataType.setDbType(dbType);
+
+        return parseDataTypeRest(dataType);
+    }
+
+    protected SQLDataType parseCharTypeRest(TeradataSQLCharacterDataType charType) {
+
+        if (lexer.token() == Token.BINARY) {
+            charType.setHasBinary(true);
+            lexer.nextToken();
+        }
+        Token token = lexer.token();
+
+        if (lexer.identifierEquals(FnvHash.Constants.CHARACTER)) {
+            lexer.nextToken();
+
+            accept(Token.SET);
+
+            switch (token) {
+                case LATIN:
+                case GRAPHIC:
+                case UNICODE:
+                case KANJI1:
+                case KANJISJIS:
+                case IDENTIFIER:
+                case LITERAL_CHARS:
+                case BINARY:
+                    charType.setCharSetName(lexer.stringVal());
+                    lexer.nextToken();
+                    break;
+                default:
+                    throw new ParserException(lexer.info());
+
+            }
+
+        } else if (lexer.identifierEquals(FnvHash.Constants.CHARSET)) {
+            lexer.nextToken();
+
+            switch (token) {
+                case LATIN:
+                case GRAPHIC:
+                case UNICODE:
+                case KANJI1:
+                case KANJISJIS:
+                case IDENTIFIER:
+                case LITERAL_CHARS:
+                case BINARY:
+                    charType.setCharSetName(lexer.stringVal());
+                    lexer.nextToken();
+                    break;
+                default:
+                    throw new ParserException(lexer.info());
+
+            }
+        }
+
+        if (lexer.token() == Token.BINARY) {
+            charType.setHasBinary(true);
+            lexer.nextToken();
+        }
+
+        if (lexer.identifierEquals(FnvHash.Constants.COLLATE)) {
+            lexer.nextToken();
+
+            if (lexer.token() == Token.LITERAL_ALIAS) {
+                charType.setCollate(lexer.stringVal());
+            } else if (lexer.token() == Token.IDENTIFIER) {
+                charType.setCollate(lexer.stringVal());
+            } else {
+                throw new ParserException();
+            }
+
+            lexer.nextToken();
+        }
+
+        for (; ; ) {
+            if (lexer.identifierEquals("NO")) {
+                lexer.nextToken();
+                if (lexer.token() == Token.CASESPECIFIC) {
+                    charType.setCaseSensitive(false);
+                }
+            }
+            if (lexer.token() == Token.CASESPECIFIC) {
+                charType.setCaseSensitive(true);
+            }
+            lexer.nextToken();
+            if (lexer.token() == Token.COMMA) {
+                break;
+            }
+            if (lexer.token() == Token.RPAREN) {
+                break;
+            }
+        }
+        return charType;
+    }
+
+
     public SQLExpr expr() {
         if (lexer.token() == Token.STAR) {
             lexer.nextToken();

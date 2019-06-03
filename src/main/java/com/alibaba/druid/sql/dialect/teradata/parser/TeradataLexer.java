@@ -34,6 +34,14 @@ public class TeradataLexer extends Lexer {
         map.put("SHOW", Token.SHOW);
         map.put("MOD", Token.MOD);
 
+        // Teradata Server Character Set
+        map.put("LATIN", Token.LATIN);
+        map.put("UNICODE", Token.UNICODE);
+        map.put("GRAPHIC", Token.GRAPHIC);
+        map.put("KANJI1", Token.KANJI1);
+        map.put("KANJISJIS", Token.KANJISJIS);
+        map.put("CASESPECIFIC", Token.CASESPECIFIC);
+
         map.put("USING", Token.USING);
 
         map.put("DEL", Token.DEL);
