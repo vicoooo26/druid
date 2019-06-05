@@ -462,6 +462,18 @@ public class TeradataExprParser extends SQLExprParser {
         }
 
         for (; ; ) {
+            if (lexer.token() == Token.COMMA) {
+                break;
+            }
+            if (lexer.token() == Token.RPAREN) {
+                break;
+            }
+            if (lexer.token() == Token.SEMI) {
+                break;
+            }
+            if (lexer.token() == Token.EOF) {
+                break;
+            }
             if (lexer.identifierEquals("NO")) {
                 lexer.nextToken();
                 if (lexer.token() == Token.CASESPECIFIC) {
@@ -472,12 +484,6 @@ public class TeradataExprParser extends SQLExprParser {
                 charType.setCaseSensitive(true);
             }
             lexer.nextToken();
-            if (lexer.token() == Token.COMMA) {
-                break;
-            }
-            if (lexer.token() == Token.RPAREN) {
-                break;
-            }
         }
         return charType;
     }

@@ -119,6 +119,9 @@ public class TeradataCreateTableParser extends SQLCreateTableParser {
             if (lexer.token() == Token.AS) {
                 break;
             }
+            if (lexer.token() == Token.LPAREN) {
+                break;
+            }
 
         }
 

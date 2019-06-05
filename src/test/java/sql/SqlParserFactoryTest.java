@@ -1,76 +1,27 @@
 package sql;
 
 import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLStatement;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import static org.junit.Assert.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sql.druid.DruidSqlParser;
+import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
 
-public class SqlParserFactory {
+public class SqlParserFactoryTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqlParserFactory.class);
 
-    private static class Holder {
-
-        private static final SqlParserFactory INSTANCE = new SqlParserFactory();
-    }
-
-    public static final SqlParserFactory getInstance() {
-        return SqlParserFactory.Holder.INSTANCE;
-    }
-
-    private SqlParserFactory() {
-    }
-
-    public ISqlParser createSqlParser(SqlParseType sqlParseType) {
-        switch (sqlParseType) {
-            case Hive:
-            case Inceptor:
-                return new DruidSqlParser(sqlParseType.getType());
-            case HBase:
-            case Hyperbase:
-                throw new RuntimeException("not support " + sqlParseType.getType() + " yet.");
-            case Oracle:
-            case DB2:
-            case Teradata:
-            case MySQL:
-            case SqlServer:
-                return new DruidSqlParser(sqlParseType.getType());
-            default:
-                throw new RuntimeException("not support " + sqlParseType.getType() + " yet.");
-        }
-    }
-
-    public static void main(String[] args) {
-        // done
-        db2Lineage();
-        // done
-        mysqlLineage();
-        // done
-        oracleLineage();
-
-        // done
-        sqlServerLineage();
-
-        // done
-        teradataLineage();
-
-        mysqlParser();
-        oracleParser();
-        db2Parser();
-        sqlServerParser();
-        teradataParser();
-    }
-
-    protected static void db2Lineage() {
+    @Test
+    public void db2Lineage() {
         ISqlParser sqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.DB2);
+
+        String db2Sql1 = "create table table1(id bigint, name varchar(20), age int, address varchar(50))";
+
+        String db2Sql2 = "CREATE TABLE test1.table2 LIKE test1.table1";
+
+        String db2Sql3 = "CREATE VIEW test1.view1 AS (SELECT id,name,age,address FROM test1.table1)";
+
+        String db2Sql4 = "create table table2 as (select id,name,age,address from table1) definition only";
+
         String str1 = "CREATE TABLE DB2INST1.TABLE5 (\n"
                 + "MAT_DT DATE NULL, MAT_DTS TIMESTAMP NULL, PBC_APRV_NO VARCHAR(32) NOT NULL, BAL DECIMAL(26, 2) NULL\n"
                 + ")";
@@ -107,21 +58,27 @@ public class SqlParserFactory {
                 + "        FROM\n"
                 + "            table1\n"
                 + "    )";
+        assertNotNull(sqlParser.getTargetSourceTableMap(db2Sql1));
+        assertNotNull(sqlParser.getTargetSourceTableMap(db2Sql2));
+        assertNotNull(sqlParser.getTargetSourceTableMap(db2Sql3));
+        assertNotNull(sqlParser.getTargetSourceTableMap(db2Sql4));
 
-        Map<String, List<String>> result1 = sqlParser.getTargetSourceTableMap(str1);
-        Map<String, List<String>> result2 = sqlParser.getTargetSourceTableMap(str2);
-        Map<String, List<String>> result3 = sqlParser.getTargetSourceTableMap(str3);
-        Map<String, List<String>> result4 = sqlParser.getTargetSourceTableMap(str4);
-        Map<String, List<String>> result5 = sqlParser.getTargetSourceTableMap(str5);
-        Map<String, List<String>> result6 = sqlParser.getTargetSourceTableMap(str6);
-        Map<String, List<String>> result7 = sqlParser.getTargetSourceTableMap(str7);
-        Map<String, List<String>> result8 = sqlParser.getTargetSourceTableMap(str8);
-        System.out.println("");
+        assertNotNull(sqlParser.getTargetSourceTableMap(str1));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str2));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str3));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str4));
+
+        assertNotNull(sqlParser.getTargetSourceTableMap(str5));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str6));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str7));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str8));
+
     }
 
-
-    protected static void mysqlLineage() {
-        ISqlParser sqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.MySQL);
+    @Test
+    public void mysqlLineage() {
+        ISqlParser sqlParser = SqlParserFactory.getInstance()
+                .createSqlParser(SqlParseType.MySQL);
         String str1 = "CREATE TABLE `database_table_column123` (\n"
                 + "  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',\n"
                 + "  `authority` varchar(100) NOT NULL DEFAULT '' COMMENT '权限',\n"
@@ -162,15 +119,23 @@ public class SqlParserFactory {
 
         String str5 = "create view test_again.view1 as select `test_again`.`database_table_column123`.`id` AS `id`,`test_again`.`database_table_column123`.`owner` AS `owner` from `test_again`.`database_table_column123`";
 
-        Map<String, List<String>> result1 = sqlParser.getTargetSourceTableMap(str1);
-        Map<String, List<String>> result2 = sqlParser.getTargetSourceTableMap(str2);
-        Map<String, List<String>> result3 = sqlParser.getTargetSourceTableMap(str3);
-        Map<String, List<String>> result4 = sqlParser.getTargetSourceTableMap(str4);
-        Map<String, List<String>> result5 = sqlParser.getTargetSourceTableMap(str5);
+        assertNotNull(sqlParser.getTargetSourceTableMap(str1));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str2));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str3));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str4));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str5));
+
     }
 
-    protected static void oracleLineage() {
-        ISqlParser sqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.Oracle);
+    @Test
+    public void oracleLineage() {
+        ISqlParser sqlParser = SqlParserFactory.getInstance()
+                .createSqlParser(SqlParseType.Oracle);
+
+        String oracleSql1 = "create table test1.table1(id number, name varchar2(10), age number, address varchar2(10));";
+
+        String oracleSql2 = "create table test1.table2 as select id,name,age,address from test1.table1;";
+
         String str1 = "CREATE TABLE \"TEST1\".\"TABLE1\" \n"
                 + "   (\t\"ID\" NUMBER, \n"
                 + "\t\"NAME\" VARCHAR2(10), \n"
@@ -207,15 +172,19 @@ public class SqlParserFactory {
                 "CREATE OR REPLACE FORCE VIEW \"TEST1\".\"TEST_VIEW\" (\"ID\", \"NAME\", \"SEX\") AS \n"
                         + "  SELECT \"ID\",\"NAME\",\"SEX\" FROM TEST1.STUDENT";
 
-        Map<String, List<String>> result1 = sqlParser.getTargetSourceTableMap(str1);
-        Map<String, List<String>> result2 = sqlParser.getTargetSourceTableMap(str2);
-        Map<String, List<String>> result3 = sqlParser.getTargetSourceTableMap(str3);
-        Map<String, List<String>> result4 = sqlParser.getTargetSourceTableMap(str4);
+        assertNotNull(sqlParser.getTargetSourceTableMap(oracleSql1));
+        assertNotNull(sqlParser.getTargetSourceTableMap(oracleSql2));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str1));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str2));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str3));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str4));
 
     }
 
-    protected static void sqlServerLineage() {
-        ISqlParser sqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.SqlServer);
+    @Test
+    public void sqlServerLineage() {
+        ISqlParser sqlParser = SqlParserFactory.getInstance()
+                .createSqlParser(SqlParseType.SqlServer);
 
         String str1 = "CREATE TABLE test1.table1 (\n"
                 + " id int  NULL,\n"
@@ -236,17 +205,20 @@ public class SqlParserFactory {
         String str5 = "create view test1.view2 as select * from test1.view1\n";
         String str6 = "create view test1.view3 as select * from test1.view2\n";
 
-        Map<String, List<String>> result1 = sqlParser.getTargetSourceTableMap(str1);
-        Map<String, List<String>> result2 = sqlParser.getTargetSourceTableMap(str2);
-        Map<String, List<String>> result3 = sqlParser.getTargetSourceTableMap(str3);
-        Map<String, List<String>> result4 = sqlParser.getTargetSourceTableMap(str4);
-        Map<String, List<String>> result5 = sqlParser.getTargetSourceTableMap(str5);
-        Map<String, List<String>> result6 = sqlParser.getTargetSourceTableMap(str6);
+        assertNotNull(sqlParser.getTargetSourceTableMap(str1));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str2));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str3));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str4));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str5));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str6));
+
 
     }
 
-    protected static void teradataLineage() {
-        ISqlParser sqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.Teradata);
+    @Test
+    public void teradataLineage() {
+        ISqlParser sqlParser = SqlParserFactory.getInstance()
+                .createSqlParser(SqlParseType.Teradata);
         String str0 = "CREATE MULTISET TABLE database_teradata1.table1 ,FALLBACK ,\n"
                 + "     NO BEFORE JOURNAL,\n"
                 + "     NO AFTER JOURNAL,\n"
@@ -285,20 +257,20 @@ public class SqlParserFactory {
 
         String str5 = "create view database_teradata1.view1 as select id,name,age,address from database_teradata1.table1;";
 
-        Map<String, List<String>> result0 = sqlParser.getTargetSourceTableMap(str0);
-        Map<String, List<String>> result1 = sqlParser.getTargetSourceTableMap(str1);
-        Map<String, List<String>> result2 = sqlParser.getTargetSourceTableMap(str2);
-        Map<String, List<String>> result3 = sqlParser.getTargetSourceTableMap(str3);
-        Map<String, List<String>> result4 = sqlParser.getTargetSourceTableMap(str4);
-        Map<String, List<String>> result5 = sqlParser.getTargetSourceTableMap(str5);
+        assertNotNull(sqlParser.getTargetSourceTableMap(str0));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str1));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str2));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str3));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str4));
+        assertNotNull(sqlParser.getTargetSourceTableMap(str5));
 
-        System.out.println("teradata success!");
     }
 
-
-    protected static void mysqlParser() {
-        ISqlParser mySqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.MySQL);
-
+    @Test
+    public void mysqlParser() {
+        ISqlParser mySqlParser = SqlParserFactory.getInstance()
+                .createSqlParser(SqlParseType.MySQL);
+        String dbType = "mysql";
         // 创建数据库
         String mysql1 = "create database test1";
 
@@ -323,44 +295,36 @@ public class SqlParserFactory {
         String mysql9 = "create procedure test1.empty_param()" +
                 " begin" +
                 " end";
-        System.out.println(SQLUtils.format(mysql1, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql2, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql3, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql4, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql5, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql6, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql7, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql8, "mysql"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(mysql9, "mysql"));
-        System.out.println("\n");
+        SQLUtils.format(mysql1, dbType);
+        SQLUtils.format(mysql2, dbType);
+        SQLUtils.format(mysql3, dbType);
+        SQLUtils.format(mysql4, dbType);
+        SQLUtils.format(mysql5, dbType);
+        SQLUtils.format(mysql6, dbType);
+        SQLUtils.format(mysql7, dbType);
+        SQLUtils.format(mysql8, dbType);
+        SQLUtils.format(mysql9, dbType);
 
-        List<SQLStatement> mysql1Result = SQLUtils.parseStatements(mysql1, "mysql");
-        List<SQLStatement> mysql2Result = SQLUtils.parseStatements(mysql2, "mysql");
-        List<SQLStatement> mysql3Result = SQLUtils.parseStatements(mysql3, "mysql");
-        List<SQLStatement> mysql4Result = SQLUtils.parseStatements(mysql4, "mysql");
-        List<SQLStatement> mysql5Result = SQLUtils.parseStatements(mysql5, "mysql");
-        List<SQLStatement> mysql6Result = SQLUtils.parseStatements(mysql6, "mysql");
-        List<SQLStatement> mysql7Result = SQLUtils.parseStatements(mysql7, "mysql");
-        List<SQLStatement> mysql8Result = SQLUtils.parseStatements(mysql8, "mysql");
-        List<SQLStatement> mysql9Result = SQLUtils.parseStatements(mysql9, "mysql");
+        assertNotNull(SQLUtils.parseStatements(mysql1, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql2, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql3, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql4, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql5, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql6, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql7, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql8, dbType));
+        assertNotNull(SQLUtils.parseStatements(mysql9, dbType));
 
-        mySqlParser.getTargetSourceTableMap(mysql2);
-        mySqlParser.getTargetSourceTableMap(mysql5);
-        mySqlParser.getTargetSourceTableMap(mysql6);
-        mySqlParser.getTargetSourceTableMap(mysql7);
+        assertNotNull(mySqlParser.getTargetSourceTableMap(mysql2));
+        assertNotNull(mySqlParser.getTargetSourceTableMap(mysql5));
+        assertNotNull(mySqlParser.getTargetSourceTableMap(mysql6));
+        assertNotNull(mySqlParser.getTargetSourceTableMap(mysql7));
 
-        System.out.println("");
     }
 
-    protected static void oracleParser() {
+    @Test
+    public void oracleParser() {
+        String dbType = "oracle";
         ISqlParser oracleSqlParser = SqlParserFactory.getInstance()
                 .createSqlParser(SqlParseType.Oracle);
         String oracleSql1 = "create table STUDENT\n" +
@@ -428,120 +392,90 @@ public class SqlParserFactory {
                 "\n" +
                 "end Test_package;";
 
-        System.out.println(SQLUtils.format(oracleSql1, "oracle"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(oracleSql2, "oracle"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(oracleSql3, "oracle"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(oracleSql4, "oracle"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(oracleSql5, "oracle"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(oracleSql6, "oracle"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(oracleSql7, "oracle"));
-        System.out.println("\n");
+        SQLUtils.format(oracleSql1, dbType);
+        SQLUtils.format(oracleSql2, dbType);
+        SQLUtils.format(oracleSql3, dbType);
+        SQLUtils.format(oracleSql4, dbType);
+        SQLUtils.format(oracleSql5, dbType);
+        SQLUtils.format(oracleSql6, dbType);
+        SQLUtils.format(oracleSql7, dbType);
 
-        List<SQLStatement> oracleSql1Result = SQLUtils.parseStatements(oracleSql1, "oracle");
-        List<SQLStatement> oracleSql2Result = SQLUtils.parseStatements(oracleSql2, "oracle");
-        List<SQLStatement> oracleSql3Result = SQLUtils.parseStatements(oracleSql3, "oracle");
-        List<SQLStatement> oracleSql4Result = SQLUtils.parseStatements(oracleSql4, "oracle");
-        List<SQLStatement> oracleSql5Result = SQLUtils.parseStatements(oracleSql5, "oracle");
-        List<SQLStatement> oracleSql6Result = SQLUtils.parseStatements(oracleSql6, "oracle");
-        List<SQLStatement> oracleSql7Result = SQLUtils.parseStatements(oracleSql7, "oracle");
+        assertNotNull(SQLUtils.parseStatements(oracleSql1, dbType));
+        assertNotNull(SQLUtils.parseStatements(oracleSql2, dbType));
+        assertNotNull(SQLUtils.parseStatements(oracleSql3, dbType));
+        assertNotNull(SQLUtils.parseStatements(oracleSql4, dbType));
+        assertNotNull(SQLUtils.parseStatements(oracleSql5, dbType));
+        assertNotNull(SQLUtils.parseStatements(oracleSql6, dbType));
+        assertNotNull(SQLUtils.parseStatements(oracleSql7, dbType));
 
-        Map<String, List<String>> sourceTargetTableMapOracle1 = oracleSqlParser
-                .getTargetSourceTableMap(oracleSql1);
-        Map<String, List<String>> sourceTargetTableMapOracle2 = oracleSqlParser
-                .getTargetSourceTableMap(oracleSql2);
-        Map<String, List<String>> sourceTargetTableMapOracle3 = oracleSqlParser
-                .getTargetSourceTableMap(oracleSql3);
-        Map<String, List<String>> sourceTargetTableMapOracle4 = oracleSqlParser
-                .getTargetSourceTableMap(oracleSql4);
-        Map<String, List<String>> sourceTargetTableMapOracle5 = oracleSqlParser
-                .getTargetSourceTableMap(oracleSql5);
+        assertNotNull(oracleSqlParser
+                .getTargetSourceTableMap(oracleSql1));
+        assertNotNull(oracleSqlParser
+                .getTargetSourceTableMap(oracleSql2));
+        assertNotNull(oracleSqlParser
+                .getTargetSourceTableMap(oracleSql3));
+        assertNotNull(oracleSqlParser
+                .getTargetSourceTableMap(oracleSql4));
+        assertNotNull(oracleSqlParser
+                .getTargetSourceTableMap(oracleSql5));
 
-        System.out.println("");
     }
 
-    protected static void db2Parser() {
-        ISqlParser db2SqlParser = SqlParserFactory.getInstance().createSqlParser(SqlParseType.DB2);
-        // parser lexer done,  lineage done
+    @Test
+    public void db2Parser() {
+        ISqlParser db2SqlParser = SqlParserFactory.getInstance()
+                .createSqlParser(SqlParseType.DB2);
+        String dbType = "db2";
         String db2Sql1 = "create table table1(id bigint, name varchar(20), age int, address varchar(50))";
         String db2FormatSql1 = SQLUtils.format(db2Sql1, "db2");
 
-        // parser lexer done, lineage not done
         String db2Sql2 = "CREATE TABLE test1.table2 LIKE test1.table1";
         String db2FormatSql2 = SQLUtils.format(db2Sql2, "db2");
 
-        // compare mysql to db2
-//        String mysqlFormatSql2 = SQLUtils.format(db2Sql2,"mysql");
-//        List<SQLStatement> mysqlStatements = SQLUtils.parseStatements(db2Sql2, "mysql");
-//        System.out.println(mysqlFormatSql2);
-
-        // parser lexer done,  lineage not done - view as source not found
         String db2Sql3 = "CREATE VIEW test1.view1 AS (SELECT id,name,age,address FROM test1.table1)";
         String db2FormatSql3 = SQLUtils.format(db2Sql3, "db2");
 
-        // parser lexer done,  lineage done
         String db2Sql4 = "create table table2 as (select id,name,age,address from table1) definition only";
         String db2FormatSql4 = SQLUtils.format(db2Sql4, "db2");
 
-        // parser lexer done,  lineage done
         String db2Sql5 = "create table table3 as (select * from table2) definition only";
         String db2FormatSql5 = SQLUtils.format(db2Sql5, "db2");
 
-        // parser lexer done,  lineage not done
         String db2Sql6 = "CREATE OR REPLACE PROCEDURE INSERT_TABLE1 (IN in_id INTEGER,IN in_name VARCHAR(20)) BEGIN END";
         String db2FormatSql6 = SQLUtils.format(db2Sql6, "db2");
 
-        // parser lexer done,  lineage not done
         String db2Sql7 = "insert into table1(id,name,age,address) values(1, 'mark', 18, 'shanghai')";
         String db2FormatSql7 = SQLUtils.format(db2Sql7, "db2");
 
-        System.out.println(db2FormatSql1);
-        System.out.println("\n");
-        System.out.println(db2FormatSql2);
-        System.out.println("\n");
-        System.out.println(db2FormatSql3);
-        System.out.println("\n");
-        System.out.println(db2FormatSql4);
-        System.out.println("\n");
-        System.out.println(db2FormatSql5);
-        System.out.println("\n");
-        System.out.println(db2FormatSql6);
-        System.out.println("\n");
-        System.out.println(db2FormatSql7);
-        System.out.println("\n");
+        assertNotNull(SQLUtils.parseStatements(db2FormatSql1, dbType));
+        assertNotNull(SQLUtils.parseStatements(db2FormatSql2, dbType));
+        assertNotNull(SQLUtils.parseStatements(db2FormatSql3, dbType));
+        assertNotNull(SQLUtils.parseStatements(db2FormatSql4, dbType));
+        assertNotNull(SQLUtils.parseStatements(db2FormatSql5, dbType));
+        assertNotNull(SQLUtils.parseStatements(db2FormatSql6, dbType));
+        assertNotNull(SQLUtils.parseStatements(db2FormatSql7, dbType));
 
-        List<SQLStatement> db2Statements1 = SQLUtils.parseStatements(db2FormatSql1, "db2");
-        List<SQLStatement> db2Statements2 = SQLUtils.parseStatements(db2FormatSql2, "db2");
-        List<SQLStatement> db2Statements3 = SQLUtils.parseStatements(db2FormatSql3, "db2");
-        List<SQLStatement> db2Statements4 = SQLUtils.parseStatements(db2FormatSql4, "db2");
-        List<SQLStatement> db2Statements5 = SQLUtils.parseStatements(db2FormatSql5, "db2");
-        List<SQLStatement> db2Statements6 = SQLUtils.parseStatements(db2FormatSql6, "db2");
-        List<SQLStatement> db2Statements7 = SQLUtils.parseStatements(db2FormatSql7, "db2");
+        assertNotNull(db2SqlParser
+                .getTargetSourceTableMap(db2Sql1));
+        assertNotNull(db2SqlParser
+                .getTargetSourceTableMap(db2Sql2));
+        assertNotNull(db2SqlParser
+                .getTargetSourceTableMap(db2Sql3));
+        assertNotNull(db2SqlParser
+                .getTargetSourceTableMap(db2Sql4));
+        assertNotNull(db2SqlParser
+                .getTargetSourceTableMap(db2Sql5));
 
-        Map<String, List<String>> sourceTargetTableMapDB2_1 = db2SqlParser
-                .getTargetSourceTableMap(db2Sql1);
-        Map<String, List<String>> sourceTargetTableMapDB2_2 = db2SqlParser
-                .getTargetSourceTableMap(db2Sql2);
-        Map<String, List<String>> sourceTargetTableMapDB2_3 = db2SqlParser
-                .getTargetSourceTableMap(db2Sql3);
-        Map<String, List<String>> sourceTargetTableMapDB2_4 = db2SqlParser
-                .getTargetSourceTableMap(db2Sql4);
-        Map<String, List<String>> sourceTargetTableMapDB2_5 = db2SqlParser
-                .getTargetSourceTableMap(db2Sql5);
 
-        System.out.println("");
     }
 
-    protected static void sqlServerParser() {
+    @Test
+    public void sqlServerParser() {
+        String dbType = "sqlserver";
         String sqlServer1 = "create database test1";
         String sqlServer2 = "use test1";
         // 创建登录账户
-        String sqlServer3 = "create login user1 with password='Admin123'";
+        String sqlServer3 = "create login user1 with passworddddd='d'";
         // 为登录账户创建数据库用户
         String sqlServer4 = "create user user1 for login user1";
         // 删除数据库用户
@@ -585,55 +519,57 @@ public class SqlParserFactory {
 
         String sqlServer21 = "drop function test1.function1\n";
 
-        System.out.println(SQLUtils.format(sqlServer1, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer2, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer3, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer4, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer5, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer6, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer7, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer8, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer9, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer10, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer11, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer12, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer13, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer14, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer15, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer16, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer17, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer18, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer18_1, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer18_2, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer19, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer20, "sqlserver"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(sqlServer21, "sqlserver"));
-        System.out.println("\n");
+        SQLUtils.format(sqlServer1, dbType);
+
+        SQLUtils.format(sqlServer2, dbType);
+
+        SQLUtils.format(sqlServer3, dbType);
+
+        SQLUtils.format(sqlServer4, dbType);
+
+        SQLUtils.format(sqlServer5, dbType);
+
+        SQLUtils.format(sqlServer6, dbType);
+
+        SQLUtils.format(sqlServer7, dbType);
+
+        SQLUtils.format(sqlServer8, dbType);
+
+        SQLUtils.format(sqlServer9, dbType);
+
+        SQLUtils.format(sqlServer10, dbType);
+
+        SQLUtils.format(sqlServer11, dbType);
+
+        SQLUtils.format(sqlServer12, dbType);
+
+        SQLUtils.format(sqlServer13, dbType);
+
+        SQLUtils.format(sqlServer14, dbType);
+
+        SQLUtils.format(sqlServer15, dbType);
+
+        SQLUtils.format(sqlServer16, dbType);
+
+        SQLUtils.format(sqlServer17, dbType);
+
+        SQLUtils.format(sqlServer18, dbType);
+
+        SQLUtils.format(sqlServer18_1, dbType);
+
+        SQLUtils.format(sqlServer18_2, dbType);
+
+        SQLUtils.format(sqlServer19, dbType);
+
+        SQLUtils.format(sqlServer20, dbType);
+
+        SQLUtils.format(sqlServer21, dbType);
+
     }
 
-    protected static void teradataParser() {
+    @Test
+    public void teradataParser() {
+        String dbType = "teradata";
         String str1 = "create database test2 as perm=200000000,spool=100000000;";
         String str2 = "select * from dbc.dbcinfo;";
         String str3 = "create multiset table test1.table1(id integer, name varchar(30), age integer, address varchar(30)) unique primary index(id);\n";
@@ -726,7 +662,7 @@ public class SqlParserFactory {
                         +
                         "+EXTRACT(MINUTE FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND))*60\n"
                         +
-                        "+EXTRACT(SECOND FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND));\n";
+                        "+EXTRACT(SECOND FROM (TO_TIMESTAMP(endtime,'YYYY-MM-DD HH24:MI:SS' )-TO_TIMESTAMP(SUBSTR(endtime,1,10)||' '||SUBSTR(starttime,12,8),'YYYY-MM-DD HH24:MI:SS' ) HOUR TO SECOND);\n";
 
         String str24 = "select id,name,age,address,test1.timestampdiff_char19('2019-02-14 23:23:23', '2019-01-01 11:11:11') as timestamp_diff_seconds from test1.table1;\n";
         String str25 = "select * from dbc.allrights where username='test1'; \n";
@@ -758,118 +694,119 @@ public class SqlParserFactory {
         String str51 = "select * from test1.table1 sample 20;\n";
         String str52 = "alter table test1.table1 add address1 varchar(30);\n";
 
-        System.out.println(SQLUtils.format(str1, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str2, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str3, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str4, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str5, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str6, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str7, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str8, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str9, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str10, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str11, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str12, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str13, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str14, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str15, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str16, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str17, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str18, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str19, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str20, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str21, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str22, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str22_2, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str22_3, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str22_4, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str22_5, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str23, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str24, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str25, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str26, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str27, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str28, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str29, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str30, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str31, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str32, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str33, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str34, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str35, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str36, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str37, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str38, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str39, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str40, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str41, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str42, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str43, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str44, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str45, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str46, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str47, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str48, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str49, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str50, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str51, "teradata"));
-        System.out.println("\n");
-        System.out.println(SQLUtils.format(str52, "teradata"));
-        System.out.println("\n");
+        SQLUtils.format(str1, dbType);
+
+        SQLUtils.format(str2, dbType);
+
+        SQLUtils.format(str3, dbType);
+
+        SQLUtils.format(str4, dbType);
+
+        SQLUtils.format(str5, dbType);
+
+        SQLUtils.format(str6, dbType);
+
+        SQLUtils.format(str7, dbType);
+
+        SQLUtils.format(str8, dbType);
+
+        SQLUtils.format(str9, dbType);
+
+        SQLUtils.format(str10, dbType);
+
+        SQLUtils.format(str11, dbType);
+
+        SQLUtils.format(str12, dbType);
+
+        SQLUtils.format(str13, dbType);
+
+        SQLUtils.format(str14, dbType);
+
+        SQLUtils.format(str15, dbType);
+
+        SQLUtils.format(str16, dbType);
+
+        SQLUtils.format(str17, dbType);
+
+        SQLUtils.format(str18, dbType);
+
+        SQLUtils.format(str19, dbType);
+
+        SQLUtils.format(str20, dbType);
+
+        SQLUtils.format(str21, dbType);
+
+        SQLUtils.format(str22, dbType);
+
+        SQLUtils.format(str22_2, dbType);
+
+        SQLUtils.format(str22_3, dbType);
+
+        SQLUtils.format(str22_4, dbType);
+
+        SQLUtils.format(str22_5, dbType);
+
+        SQLUtils.format(str23, dbType);
+
+        SQLUtils.format(str24, dbType);
+
+        SQLUtils.format(str25, dbType);
+
+        SQLUtils.format(str26, dbType);
+
+        SQLUtils.format(str27, dbType);
+
+        SQLUtils.format(str28, dbType);
+
+        SQLUtils.format(str29, dbType);
+
+        SQLUtils.format(str30, dbType);
+
+        SQLUtils.format(str31, dbType);
+
+        SQLUtils.format(str32, dbType);
+
+        SQLUtils.format(str33, dbType);
+
+        SQLUtils.format(str34, dbType);
+
+        SQLUtils.format(str35, dbType);
+
+        SQLUtils.format(str36, dbType);
+
+        SQLUtils.format(str37, dbType);
+
+        SQLUtils.format(str38, dbType);
+
+        SQLUtils.format(str39, dbType);
+
+        SQLUtils.format(str40, dbType);
+
+        SQLUtils.format(str41, dbType);
+
+        SQLUtils.format(str42, dbType);
+
+        SQLUtils.format(str43, dbType);
+
+        SQLUtils.format(str44, dbType);
+
+        SQLUtils.format(str45, dbType);
+
+        SQLUtils.format(str46, dbType);
+
+        SQLUtils.format(str47, dbType);
+
+        SQLUtils.format(str48, dbType);
+
+        SQLUtils.format(str49, dbType);
+
+        SQLUtils.format(str50, dbType);
+
+        SQLUtils.format(str51, dbType);
+
+        SQLUtils.format(str52, dbType);
+
 
     }
-}
+
+} 
